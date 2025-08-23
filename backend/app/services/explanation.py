@@ -33,8 +33,8 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY")) # Or use os.environ["GEMINI
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 RISK_CATEGORY_MAP = {
-    0: "Pass", 1: "Especially Mentioned (EM)", 2: "Substandard",
-    3: "Doubtful", 4: "Loss"
+    0: "Secure", 1: "Unstable", 2: "Risky",
+    3: "Critical", 4: "Default"
 }
 
 def explain_ai(gen_type, df, application_id, lime_explanation, aggregated_lime_scores, X_train, lime_image_path=None, 
