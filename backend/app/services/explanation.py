@@ -7,16 +7,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
-import os
 import markdown
-import re
 from bs4 import BeautifulSoup
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
-)
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 import pdb
 from dotenv import load_dotenv
@@ -32,12 +24,20 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY")) # Or use os.environ["GEMINI
 # Create the model
 model = genai.GenerativeModel('gemini-1.5-flash')
 
+# Create the model
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+# RISK_CATEGORY_MAP = {
+#     0: "Pass", 1: "Especially Mentioned (EM)", 2: "Substandard",
+#     3: "Doubtful", 4: "Loss"
+# }
+
 RISK_CATEGORY_MAP = {
     0: "Secure", 1: "Unstable", 2: "Risky",
     3: "Critical", 4: "Default"
 }
 
-def explain_ai(gen_type, df, application_id, lime_explanation, aggregated_lime_scores, X_train, lime_image_path=None, 
+def explain_ai(gen_type, df, application_id, lime_explanation, aggregated_lime_scores, X_train, probabilities, lime_image_path=None, 
                outdir='outdir', additional_instructions=None): 
     
     if gen_type == 'lengthy_summary': 
@@ -50,14 +50,27 @@ def explain_ai(gen_type, df, application_id, lime_explanation, aggregated_lime_s
         return response.text
     
     elif gen_type == 'full_report': 
-        prompt = generate_full_report_prompt(df, application_id=application_id, lime_explanation=lime_explanation,
-                                             aggregated_lime_scores=aggregated_lime_scores, X_train=X_train,
+        lime_image_path=f'outdir\lime_explanation_{application_id}.png',
+        aggregatedlime_image_path=f'outdir\lime_aggregated_plot_{application_id}.png',
+        shap_image_path=f'outdir\shap_explanation_{application_id}.png'
+        prompt = generate_full_report_prompt(df, 
+                                             application_id=application_id, 
+                                             lime_explanation=lime_explanation,
+                                             aggregated_lime_scores=aggregated_lime_scores, 
+                                             probabilities=probabilities,
                                              lime_image_path=lime_image_path,
-                                             additional_instructions=additional_instructions) 
+                                             aggregatedlime_image_path=aggregatedlime_image_path,
+                                             shap_image_path=shap_image_path,
+                                             additional_instructions=additional_instructions)
+#         print(prompt)
         response = model.generate_content(prompt)
         os.makedirs(outdir, exist_ok=True)
         filename = os.path.join(outdir, f"report_{application_id}.pdf")
-        generate_pdf_from_text(response.text, filename=filename, extra_images=[lime_image_path] if lime_image_path else [])
+        extra_images = [
+            path for path in [lime_image_path, aggregatedlime_image_path, shap_image_path] 
+            if path
+        ]
+        generate_pdf_from_text(response.text, filename=filename, extra_images=extra_images)
         
         return response.text
     
@@ -94,7 +107,7 @@ def generate_explanation_prompt(df, application_id, lime_explanation, aggregated
     
     # --- Construct row feature summary ---
     feature_summary = []
-    for col in X_train.columns:
+    for col in df.columns:
         value = data_row[col]
         feature_summary.append(f"{col} = {value}")
     
@@ -117,10 +130,22 @@ Explain in clear, concise terms how the application data and these key factors c
 """
     return prompt
 
-def generate_full_report_prompt(df, application_id, lime_explanation, aggregated_lime_scores, X_train, lime_image_path, RISK_CATEGORY_MAP=RISK_CATEGORY_MAP, additional_instructions=''):
+
+def generate_full_report_prompt(
+    df,
+    application_id,
+    lime_explanation,
+    aggregated_lime_scores,
+    probabilities,
+    lime_image_path=None,
+    aggregatedlime_image_path=None,
+    shap_image_path=None,
+    RISK_CATEGORY_MAP=RISK_CATEGORY_MAP,
+    outdir='outdir',
+    additional_instructions=''
+):
     """
     Generates a prompt for Gemini API to produce a full report for a loan application.
-    The report can include: application details, LIME chart/image, tables, and explanation.
 
     Parameters:
     -----------
@@ -132,12 +157,18 @@ def generate_full_report_prompt(df, application_id, lime_explanation, aggregated
         Output from generate_lime_explanation.
     aggregated_lime_scores : dict
         Output from generate_aggregated_lime.
-    X_train : pd.DataFrame
-        Training features used for LIME feature cleaning.
+    probabilities : np.ndarray
+        Array of predicted probabilities for each risk category.
     lime_image_path : str
         File path to the LIME image/chart for this application.
+    shap_image_path : str
+        File path to the SHAP image/chart for this application.
     RISK_CATEGORY_MAP : dict
         Mapping of numeric class to risk category names.
+    outdir : str
+        Directory where LIME HTML explanations are saved.
+    additional_instructions : str
+        Extra instructions to include in the prompt.
 
     Returns:
     --------
@@ -150,42 +181,60 @@ def generate_full_report_prompt(df, application_id, lime_explanation, aggregated
         raise ValueError(f"Application ID {application_id} not found")
     data_row = df.loc[row_mask].iloc[0]
 
-    # --- Predicted class and features ---
+    # --- Predicted class ---
     predicted_numeric_class = list(lime_explanation.local_exp.keys())[0]
     predicted_category = RISK_CATEGORY_MAP[predicted_numeric_class]
 
-    # LIME feature details
+    # --- Prediction probabilities as plain text ---
+    categories = list(RISK_CATEGORY_MAP.values())
+    prob_text = ", ".join(f"{cat}: {prob:.2%}" for cat, prob in zip(categories, probabilities))
+
+    # --- LIME feature details ---
     lime_list = lime_explanation.as_list(label=predicted_numeric_class)
     lime_features = [f"{name.split(' ')[0]} ({weight:+.3f})" for name, weight in lime_list]
 
-    # 5C summary
+    # --- Aggregated 5C summary ---
     c_summary = [f"{c}: {score:+.3f}" for c, score in aggregated_lime_scores.items()]
 
-    # Row feature summary
-    feature_summary = [f"{col}: {data_row[col]}" for col in X_train.columns]
+    # --- Application feature summary ---
+    feature_summary = [f"{col}: {data_row[col]}" for col in df.columns if col != "application_id"]
 
-    # Construct prompt
+    # --- Construct prompt ---
     prompt = f"""
-You are a financial risk analyst. Generate a **detailed report** for the following loan application.
+You are a financial risk analyst. Generate a **detailed report** for the following loan application. Present the report in a professional format, with tables or charts if appropriate. Present it as a text strictly following the Markdown format.
 
-Application ID: {application_id}
-Predicted Risk Category: {predicted_category}
+For images, include a clear markdown format needed to insert the image (given its file path) and provide a detailed caption.
 
---- Application Data ---
+## Executive Summary
+Application ID: {application_id}  
+Predicted Risk Category: {predicted_category}  
+Prediction Probabilities: {prob_text}
+
+## Applicant Profile
 {', '.join(feature_summary)}
+Summarize this in table format. Do not include SHAP or LIME details here.
 
---- Key Feature Impacts (LIME) ---
-{', '.join(lime_features)}
+## Financial Behavior Analysis
+Please analyze the applicant's financial behavior based on the features provided above.
 
---- Aggregated 5C Contributions ---
+## Key Feature Impacts & Visualizations
+### LIME Analysis
+Key contributing features: {', '.join(lime_features)}  
+Refer to the LIME chart here: ![LIME Explanation]({lime_image_path})  
+Please provide a detailed interpretation of the LIME visualization.
+
+### SHAP Analysis
+Refer to the SHAP chart here: ![SHAP Explanation]({shap_image_path})  
+Provide a detailed interpretation of the SHAP visualization, highlighting feature importance and contributions to the risk assessment.
+
+## Aggregated 5C Contributions
+Refer to the LIME chart here: ![LIME Explanation]({aggregatedlime_image_path}) 
 {', '.join(c_summary)}
 
---- Visuals ---
-Please present the report in a professional format, with tables or charts if appropriate. Present it as a text strictly following the Markdown format. Summarize the main reasons for the risk rating, highlight positive and negative factors, and provide actionable insights for the loan officer. 
+## Risk Assessment and Recommendations
+Summarize the risk factors. Give at least 5 actionable recommendations for the loan officer. Provide an overall summary of the assessment of the loan application.
 
-Include the LIME chart from this image: {lime_image_path}. Apart from generating the markdown needed to insert the image (given its file path) and its caption, do not say anything else about the image.
-
-{additional_instructions}
+Present it as a text strictly following the Markdown format. Use PHP (Philippine Peso) as currency. {additional_instructions}
 """
     return prompt
 
@@ -244,216 +293,216 @@ Aggregated 5C Contributions: {', '.join(c_summary)}
 
 Summarize the findings in clear, brief terms, highlighting the main positive and negative factors influencing the rating. {additional_instructions}
 """
-    return prompt
 
-def generate_pdf_from_text(text, filename="report.pdf", extra_images=None):
-    """
-    Convert AI explanation text into a styled PDF with tables, bullets, and images.
-    """
-    # Create PDF document
-    doc = SimpleDocTemplate(filename, pagesize=A4)
-    styles = getSampleStyleSheet()
-    story = []
+import os
+import markdown
+from bs4 import BeautifulSoup
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
 
-    # Custom styles
-    normal = styles["Normal"]
-    bold = ParagraphStyle("Bold", parent=normal, fontName="Helvetica-Bold", fontSize=11, leading=14)
-    heading = ParagraphStyle("Heading", parent=normal, fontName="Helvetica-Bold", fontSize=14, leading=18, spaceAfter=10)
-    bullet = ParagraphStyle("Bullet", parent=normal, bulletIndent=15, leftIndent=20, leading=14)
-
-    lines = text.split("\n")
-    i = 0
-    while i < len(lines):
-        line = lines[i].strip()
-        i += 1
-
-        if not line:
-            story.append(Spacer(1, 10))
-            continue
-
-        # ✅ Detect inline image references
-        img_match = re.search(r'"([^"]+\.(png|jpg|jpeg))"', line, re.IGNORECASE)
-        if img_match:
-            img_path = img_match.group(1)
-            if os.path.exists(img_path):
-                story.append(Image(img_path, width=400, height=250))
-                story.append(Spacer(1, 15))
-            else:
-                story.append(Paragraph(f"<i>[Image not found: {img_path}]</i>", normal))
-            continue
-
-        # ✅ Detect bullet points: lines starting with "* "
-        if line.startswith("* "):
-            bullet_line = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", line[2:].strip())  # keep bold text
-            story.append(Paragraph(bullet_line, bullet))
-            continue
-
-        # ✅ Handle bold markdown (**text**)
-        bold_line = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", line)
-
-        # ✅ Handle markdown tables
-        if "|" in line and "---" not in line:
-            rows = []
-            # capture consecutive rows
-            while i <= len(lines) and "|" in line and "---" not in line:
-                row = [cell.strip() for cell in line.split("|") if cell.strip()]
-                if row:
-                    rows.append(row)
-                if i >= len(lines):
-                    break
-                line = lines[i].strip()
-                i += 1
-
-            if rows:
-                table = Table(rows, hAlign="LEFT")
-                table_style = [
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f0f0f0")),
-                    ("ALIGN", (1, 1), (-1, -1), "RIGHT"),  # numbers align right
-                    ("ALIGN", (0, 0), (0, -1), "LEFT"),   # first column left
-                ]
-                table.setStyle(TableStyle(table_style))
-                story.append(table)
-                story.append(Spacer(1, 10))
-            continue
-
-        # ✅ Handle section titles
-        if re.match(r"^\d+\.", line) or line.endswith(":"):
-            story.append(Paragraph(bold_line, heading))
-        else:
-            story.append(Paragraph(bold_line, normal))
-
-    # ✅ Insert extra images (e.g., LIME plots) at the end
-    if extra_images:
-        for img_path in extra_images:
-            if img_path and os.path.exists(img_path):
-                story.append(Spacer(1, 20))
-                story.append(Image(img_path, width=400, height=250))
-                story.append(Spacer(1, 15))
-
-    # Build PDF
-    doc.build(story)
-    print(f"✅ PDF generated: {filename}")
+PAGE_WIDTH, PAGE_HEIGHT = A4
+MARGIN = 40
 
 def generate_pdf_from_text(markdown_text, filename="report.pdf", extra_images=None):
     """
-    Convert Markdown text into a styled PDF with inline images, scaled tables, and proper formatting.
+    Convert Markdown text into a styled PDF with inline images, headings, lists, tables, and proper formatting.
+    Supports tuple-style image paths and avoids duplicate insertions of the same image.
     """
     # Convert Markdown → HTML
     html = markdown.markdown(markdown_text, extensions=["tables"])
     soup = BeautifulSoup(html, "html.parser")
 
     # Setup PDF
-    doc = SimpleDocTemplate(filename, pagesize=A4,
-                            leftMargin=MARGIN, rightMargin=MARGIN,
-                            topMargin=MARGIN, bottomMargin=MARGIN)
+    doc = SimpleDocTemplate(
+        filename,
+        pagesize=A4,
+        leftMargin=MARGIN, rightMargin=MARGIN,
+        topMargin=MARGIN, bottomMargin=MARGIN
+    )
     styles = getSampleStyleSheet()
     story = []
 
-    # Custom styles
     normal = styles["Normal"]
     heading = ParagraphStyle("Heading", parent=normal,
-                             fontName="Helvetica-Bold", fontSize=14, leading=18, spaceAfter=10)
+                             fontName="Helvetica-Bold", fontSize=14,
+                             leading=18, spaceAfter=10)
     bullet = ParagraphStyle("Bullet", parent=normal, leftIndent=20,
                             bulletIndent=10, leading=14)
 
-    # Walk through HTML elements
-    for elem in soup.children:
-        if elem.name is None:
-            continue
+    inserted_images = set()  # Track inserted images to avoid duplicates
 
-        # ✅ Headings
-        if elem.name in ["h1", "h2", "h3"]:
-            story.append(Paragraph(elem.get_text(), heading))
-            continue
+    def insert_image(img_path, caption_text=""):
+        """Insert image at current position in PDF story."""
+        if not img_path:
+            return
+        # Handle tuple-style paths
+        if isinstance(img_path, tuple) and len(img_path) > 0:
+            img_path = str(img_path[0])
+        # Handle tuple-like strings
+        if isinstance(img_path, str) and img_path.startswith("(") and img_path.endswith(")"):
+            try:
+                t = eval(img_path)
+                if isinstance(t, tuple) and len(t) > 0:
+                    img_path = str(t[0])
+            except:
+                img_path = img_path.strip("(),'\" ")
+        img_path = os.path.normpath(img_path)
+        if not os.path.isabs(img_path):
+            img_path = os.path.abspath(img_path)
+        if img_path in inserted_images:
+            return
+        inserted_images.add(img_path)
 
-        # ✅ Paragraphs with inline image markers
-        if elem.name == "p":
-            # If the <p> contains an <img>, handle separately
-            img_tag = elem.find("img")
-            if img_tag:
-                img_path = img_tag.get("src")
-                caption_text = elem.get_text().strip()  # get alt/caption text if any
-                if caption_text:
-                    story.append(Paragraph(caption_text, normal))
-                if img_path and os.path.exists(img_path):
-                    story.append(Image(img_path, width=400, height=250))
-                    story.append(Spacer(1, 15))
+        # Insert caption if provided
+        if caption_text:
+            story.append(Paragraph(caption_text, normal))
+
+        # Insert image
+        if os.path.exists(img_path):
+            story.append(Image(img_path, width=400, height=250))
+            story.append(Spacer(1, 15))
+        else:
+            story.append(Paragraph(f"<i>[Image not found: {img_path}]</i>", normal))
+
+    def convert_html_to_reportlab(element):
+        """Convert HTML element to ReportLab-compatible HTML with proper formatting."""
+        if element.name is None:
+            # Text node
+            return str(element)
+        
+        text = ""
+        for child in element.children:
+            text += convert_html_to_reportlab(child)
+        
+        # Convert HTML tags to ReportLab-compatible markup
+        if element.name == "strong" or element.name == "b":
+            return f"<b>{text}</b>"
+        elif element.name == "em" or element.name == "i":
+            return f"<i>{text}</i>"
+        elif element.name == "u":
+            return f"<u>{text}</u>"
+        elif element.name == "br":
+            return "<br/>"
+        else:
+            return text
+
+    # Process all top-level elements sequentially
+    for elem in soup.find_all(recursive=False):
+        # Skip if this element is None or empty
+        if elem is None:
+            continue
+            
+        # Headings
+        if elem.name in ["h1", "h2", "h3", "h4", "h5", "h6"]:
+            story.append(Paragraph(convert_html_to_reportlab(elem), heading))
+            story.append(Spacer(1, 6))
+
+        # Paragraphs
+        elif elem.name == "p":
+            # Check if paragraph contains images
+            img_tags = elem.find_all("img")
+            if img_tags:
+                # Process images within paragraph
+                for img_tag in img_tags:
+                    img_path = img_tag.get("src")
+                    caption_text = img_tag.get("alt", "")
+                    insert_image(img_path, caption_text)
+            
+            # Get text content with formatting, excluding images
+            for img in elem.find_all("img"):
+                img.decompose()  # Remove img tags to avoid processing them as text
+            
+            formatted_text = convert_html_to_reportlab(elem)
+            if formatted_text.strip():
+                story.append(Paragraph(formatted_text, normal))
+                story.append(Spacer(1, 6))
+
+        # Lists (avoid duplication by processing only once)
+        elif elem.name in ["ul", "ol"]:
+            for i, li in enumerate(elem.find_all("li", recursive=False), 1):
+                formatted_text = convert_html_to_reportlab(li)
+                if elem.name == "ul":
+                    story.append(Paragraph(f"• {formatted_text}", bullet))
                 else:
-                    story.append(Paragraph(f"<i>[Image not found: {img_path}]</i>", normal))
-                continue
-
-            # Otherwise, treat it like a normal paragraph
-            story.append(Paragraph(elem.decode_contents(), normal))
+                    story.append(Paragraph(f"{i}. {formatted_text}", normal))
             story.append(Spacer(1, 6))
-            continue
 
-            # Regular paragraph
-            story.append(Paragraph(elem.decode_contents(), normal))
-            story.append(Spacer(1, 6))
-            continue
-
-        # ✅ Unordered list
-        if elem.name == "ul":
-            for li in elem.find_all("li"):
-                story.append(Paragraph(li.decode_contents(), bullet))
-            story.append(Spacer(1, 6))
-            continue
-
-        # ✅ Ordered list
-        if elem.name == "ol":
-            idx = 1
-            for li in elem.find_all("li"):
-                story.append(Paragraph(f"{idx}. {li.decode_contents()}", normal))
-                idx += 1
-            story.append(Spacer(1, 6))
-            continue
-
-        # ✅ Tables (scaled to fit page)
-        if elem.name == "table":
+        # Tables (process only once to avoid duplication)
+        elif elem.name == "table":
             rows = []
             for row in elem.find_all("tr"):
-                cols = [c.get_text(strip=True) for c in row.find_all(["td", "th"])]
-                rows.append(cols)
-
+                cols = []
+                for cell in row.find_all(["td", "th"]):
+                    # Convert cell content with formatting
+                    cell_text = convert_html_to_reportlab(cell)
+                    cols.append(cell_text)
+                if cols:  # Only add non-empty rows
+                    rows.append(cols)
+            
             if rows:
-                ncols = len(rows[0])
-                # calculate available width
+                # Calculate column widths
+                ncols = len(rows[0]) if rows else 1
                 available_width = PAGE_WIDTH - 2 * MARGIN
                 col_width = available_width / ncols
-                col_widths = [col_width] * ncols
-
-                table = Table(rows, colWidths=col_widths, hAlign="LEFT")
+                
+                table = Table(rows, colWidths=[col_width]*ncols, hAlign="LEFT")
                 table.setStyle(TableStyle([
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f0f0f0")),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("GRID", (0,0), (-1,-1), 0.5, colors.black),
+                    ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#f0f0f0")),
+                    ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+                    ("VALIGN", (0,0), (-1,-1), "TOP"),
+                    ("FONTSIZE", (0,0), (-1,-1), 9),  # Smaller font for tables
+                    ("WORDWRAP", (0,0), (-1,-1), True)
                 ]))
                 story.append(table)
                 story.append(Spacer(1, 10))
-            continue
 
-        # ✅ Images (from markdown ![]())
-        if elem.name == "img":
-            img_path = elem.get("src")
-            if img_path and os.path.exists(img_path):
-                story.append(Image(img_path, width=400, height=250))
-                story.append(Spacer(1, 15))
-            else:
-                story.append(Paragraph(f"<i>[Image not found: {img_path}]</i>", normal))
-            continue
+        # Block quotes
+        elif elem.name == "blockquote":
+            formatted_text = convert_html_to_reportlab(elem)
+            quote_style = ParagraphStyle("Quote", parent=normal,
+                                       leftIndent=30, rightIndent=30,
+                                       fontName="Helvetica-Oblique",
+                                       fontSize=10)
+            story.append(Paragraph(formatted_text, quote_style))
+            story.append(Spacer(1, 6))
 
-    # ✅ Extra images manually appended
+        # Code blocks
+        elif elem.name == "pre":
+            code_text = elem.get_text()
+            code_style = ParagraphStyle("Code", parent=normal,
+                                      fontName="Courier",
+                                      fontSize=9,
+                                      leftIndent=20,
+                                      backgroundColor=colors.HexColor("#f5f5f5"))
+            story.append(Paragraph(code_text.replace('\n', '<br/>'), code_style))
+            story.append(Spacer(1, 6))
+
+        # Horizontal rules
+        elif elem.name == "hr":
+            from reportlab.platypus import Drawing
+            from reportlab.lib.colors import black
+            d = Drawing(available_width, 1)
+            d.add(reportlab.graphics.shapes.Line(0, 0, available_width, 0, strokeColor=black))
+            story.append(d)
+            story.append(Spacer(1, 6))
+
+    # Handle any remaining text nodes that might be direct children of body/root
+    for elem in soup.children:
+        if elem.name is None and str(elem).strip():
+            story.append(Paragraph(str(elem).strip(), normal))
+            story.append(Spacer(1, 6))
+
+    # Insert any extra_images not already inlined
     if extra_images:
         for img_path in extra_images:
-            if img_path and os.path.exists(img_path):
-                story.append(Spacer(1, 20))
-                story.append(Image(img_path, width=400, height=250))
-                story.append(Spacer(1, 15))
+            insert_image(img_path)
 
     # Build PDF
-    doc.build(story)
-    print(f"✅ PDF generated: {filename}")
-   
+    if story:  # Only build if there's content
+        doc.build(story)
+        print(f"✅ PDF generated: {filename}")
+    else:
+        print("⚠️ No content found to generate PDF")

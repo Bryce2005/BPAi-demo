@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, Annotated, List
 import operator
+import re
 
 import pdb
 
@@ -198,7 +199,8 @@ def clean_lime_feature_name(name, feature_list):
     return ''.join([c for c in name if not c.isdigit() and c not in '<>=. '])
 
 def generate_lime_explanation(df, application_id, 
-                              model, X_train, 
+                              model, sample_application,
+                              X_train,
                               RISK_CATEGORY_MAP=RISK_CATEGORY_MAP,
                               filename="lime_explanation.png", outdir="outdir"):
     if outdir:
@@ -207,9 +209,10 @@ def generate_lime_explanation(df, application_id,
     
     # --- Select the row by application_id column ---
     row_mask = df['application_id'] == application_id
-    if not row_mask.any():
-        raise ValueError(f"Application ID {application_id} not found in df['application_id']")
-    data_row = df.loc[row_mask, X_train.columns].iloc[0].values  # 1D array
+#     if not row_mask.any():
+#         raise ValueError(f"Application ID {application_id} not found in df['application_id']")
+#     data_row = df.loc[row_mask, X_train.columns].iloc[0].values  # 1D array
+    data_row = sample_application.values[0]
     
     num_features = X_train.shape[1]
     explainer = lime.lime_tabular.LimeTabularExplainer(
@@ -271,7 +274,8 @@ def generate_lime_explanation(df, application_id,
     return explanation, df
 
 def generate_shap_explanation(df, application_id, 
-                              model, X_train, 
+                              model, sample_application,
+                              X_train, 
                               RISK_CATEGORY_MAP=RISK_CATEGORY_MAP,
                               filename="shap_explanation.png", outdir="outdir",
                               use_tree_explainer=True):
@@ -283,10 +287,10 @@ def generate_shap_explanation(df, application_id,
     row_mask = df['application_id'] == application_id
     if not row_mask.any():
         raise ValueError(f"Application ID {application_id} not found in df['application_id']")
-    data_row = df.loc[row_mask, X_train.columns].iloc[0].values.reshape(1, -1)
+    data_row = sample_application.values[0]
     
     # --- Predict numeric class and category ---
-    predicted_numeric_class = model.predict(data_row)[0]
+    predicted_numeric_class = model.predict(data_row.reshape(1, -1))[0]
     predicted_category_name = RISK_CATEGORY_MAP[predicted_numeric_class]
     
     # --- Pick SHAP explainer ---
@@ -296,7 +300,8 @@ def generate_shap_explanation(df, application_id,
         explainer = shap.KernelExplainer(model.predict_proba, X_train.sample(50, random_state=42))
     
     # --- Compute SHAP values ---
-    shap_values = explainer.shap_values(data_row)  # list if multiclass, array if binary
+#     shap_values = explainer.shap_values(data_row)  # list if multiclass, array if binary
+    shap_values = explainer.shap_values(data_row.reshape(1, -1))  # make 2D for LightGBM
     
     if isinstance(shap_values, list):  # multiclass
         shap_values_for_class = shap_values[predicted_numeric_class][0]
@@ -468,3 +473,4 @@ def decode_categoricals(df, encoder_store=ENCODER_STORE):
         if col in decoded_df.columns:
             decoded_df[col] = le.inverse_transform(decoded_df[col])
     return decoded_df
+
