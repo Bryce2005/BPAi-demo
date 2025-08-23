@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
+import ChatbotAssistant from './components/ChatbotAssistant'
 
 // AIAssist Pages
 import DataProcess from './pages/AIAssist/DataProcess'
@@ -36,6 +37,7 @@ function App() {
             <Route path="/team/officer-y" element={<OfficerY />} />
           </Routes>
         </main>
+        <ChatbotAssistant />
       </div>
     </Router>
   )

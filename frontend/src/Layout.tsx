@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
+import ChatbotAssistant from "./components/ChatbotAssistant";
 
 export default function Layout() {
   return (
@@ -13,6 +14,7 @@ export default function Layout() {
       <main className="ml-64 h-full bg-white border-r border-gray-200 shadow-sm flex-1 overflow-y-auto p-6">
         <Outlet /> {/* Page content goes here */}
       </main>
+      <ChatbotAssistant />
     </div>
   );
 }
