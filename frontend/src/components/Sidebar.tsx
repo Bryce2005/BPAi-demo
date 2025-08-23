@@ -51,7 +51,7 @@ const Sidebar = () => {
                   <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
                 </svg>
               </div>
-              <span className="font-medium">AI Assist</span>
+              <span className="font-medium">Loan Preprocess</span>
             </div>
             <div className={`transform transition-transform duration-200 ${expandedSections.aiassist ? 'rotate-90' : ''}`}>
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -67,7 +67,49 @@ const Sidebar = () => {
                 className={`block py-2 px-3 rounded-lg text-sm transition-colors duration-200
                 ${isActiveLink('/aiassist/dataprocess') ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-600 hover:bg-gray-100'}`}
               >
-                AI Process
+                Document Check
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Team Section */}
+        <div className="mb-6">
+          <button
+            onClick={() => toggleSection('team')}
+            className={`flex items-center justify-between p-3 rounded-lg w-full text-left transition-colors duration-200 
+            ${isActiveSection(['/team']) ? 'bg-red-100 text-red-600' : 'text-gray-600 hover:bg-gray-100'}`}
+          >
+            <div className="flex items-center">
+              <div className="w-5 h-5 mr-3">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                </svg>
+              </div>
+              <span className="font-medium">Applications</span>
+            </div>
+            <div className={`transform transition-transform duration-200 ${expandedSections.team ? 'rotate-90' : ''}`}>
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </button>
+          
+          {expandedSections.team && (
+            <div className="ml-8 mt-2 space-y-1">
+              <Link
+                to="/team/officer-x"
+                className={`block py-2 px-3 rounded-lg text-sm transition-colors duration-200
+                ${isActiveLink('/team/officer-x') ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                Officer X (You)
+              </Link>
+              <Link
+                to="/team/officer-y"
+                className={`block py-2 px-3 rounded-lg text-sm transition-colors duration-200
+                ${isActiveLink('/team/officer-y') ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                Officer Y
               </Link>
             </div>
           )}
@@ -115,47 +157,6 @@ const Sidebar = () => {
           )}
         </div>
 
-        {/* Team Section */}
-        <div className="mb-6">
-          <button
-            onClick={() => toggleSection('team')}
-            className={`flex items-center justify-between p-3 rounded-lg w-full text-left transition-colors duration-200 
-            ${isActiveSection(['/team']) ? 'bg-red-100 text-red-600' : 'text-gray-600 hover:bg-gray-100'}`}
-          >
-            <div className="flex items-center">
-              <div className="w-5 h-5 mr-3">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-                </svg>
-              </div>
-              <span className="font-medium">Applications</span>
-            </div>
-            <div className={`transform transition-transform duration-200 ${expandedSections.team ? 'rotate-90' : ''}`}>
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
-            </div>
-          </button>
-          
-          {expandedSections.team && (
-            <div className="ml-8 mt-2 space-y-1">
-              <Link
-                to="/team/officer-x"
-                className={`block py-2 px-3 rounded-lg text-sm transition-colors duration-200
-                ${isActiveLink('/team/officer-x') ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-600 hover:bg-gray-100'}`}
-              >
-                Officer X (You)
-              </Link>
-              <Link
-                to="/team/officer-y"
-                className={`block py-2 px-3 rounded-lg text-sm transition-colors duration-200
-                ${isActiveLink('/team/officer-y') ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-600 hover:bg-gray-100'}`}
-              >
-                Officer Y
-              </Link>
-            </div>
-          )}
-        </div>
       </nav>
 
       {/* Bottom section */}

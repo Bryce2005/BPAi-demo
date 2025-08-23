@@ -326,10 +326,10 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
                     { time: '14:15', officer: 'Officer Y', action: 'Escalated case #4519 to supervisor', status: 'warning' },
                     { time: '14:02', officer: 'You', action: 'Processing case #4518', status: 'active' },
                     { time: '13:45', officer: 'Officer Z', action: 'Started break (15 mins)', status: 'break' },
-                    { time: '13:30', officer: 'Officer W', action: 'Completed case #4515', status: 'success' },
-                    { time: '13:15', officer: 'Officer V', action: 'Logged in to system', status: 'info' },
-                    { time: '12:58', officer: 'Officer U', action: 'Submitted 5 cases for review', status: 'success' },
-                    { time: '12:42', officer: 'Officer T', action: 'Updated profile information', status: 'info' }
+                    // { time: '13:30', officer: 'Officer W', action: 'Completed case #4515', status: 'success' },
+                    // { time: '13:15', officer: 'Officer V', action: 'Logged in to system', status: 'info' },
+                    // { time: '12:58', officer: 'Officer U', action: 'Submitted 5 cases for review', status: 'success' },
+                    // { time: '12:42', officer: 'Officer T', action: 'Updated profile information', status: 'info' }
                   ].map((activity, index) => (
                     <div key={index} className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-12 text-xs text-gray-500 font-medium mt-1">

@@ -1,321 +1,724 @@
-import React, { useState } from 'react';
-import { Mail, Send, Edit3, Loader, X, CheckCircle, AlertCircle } from 'lucide-react';
+// import React, { useState, useRef, useEffect } from 'react';
+// import { Upload, FileText, Package, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 
-interface ContactClientProps {
-  clientPhone: string;
-  clientEmail?: string;
-  onClose?: () => void;
+// // Interface to define the structure for file information
+// interface FileInfo {
+//   file: File;
+//   name: string;
+//   size: string;
+// }
+
+// // Interface for the expected API response
+// interface AnalysisResponse {
+//   session_id: string;
+//   status: string;
+//   analysis: {
+//     valid_app_ids: string[];
+//     rejected_app_ids: string[];
+//   };
+// }
+
+// // Custom modal/message box interface
+// interface MessageInfo {
+//   message: string;
+//   type: 'error' | 'success' | 'info';
+// }
+
+// const DataProcess: React.FC = () => {
+//   // State for the uploaded files
+//   const [csvFile, setCsvFile] = useState<FileInfo | null>(null);
+//   const [zipFile, setZipFile] = useState<FileInfo | null>(null);
+  
+//   // State to track processing status
+//   const [isProcessing, setIsProcessing] = useState(false);
+  
+//   // State for drag-and-drop visual feedback
+//   const [dragOver, setDragOver] = useState<string | null>(null);
+  
+//   // State for displaying results
+//   const [validIds, setValidIds] = useState<string[]>([]);
+//   const [rejectedIds, setRejectedIds] = useState<string[]>([]);
+  
+//   // State for displaying messages (success, error, etc.)
+//   const [message, setMessage] = useState<MessageInfo | null>(null);
+
+//   // References to file input elements for programmatic clicks
+//   const csvInputRef = useRef<HTMLInputElement>(null);
+//   const zipInputRef = useRef<HTMLInputElement>(null);
+
+//   // Utility function to format file size for display
+//   const formatFileSize = (bytes: number): string => {
+//     if (bytes < 1024) return `${bytes} B`;
+//     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+//     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+//   };
+
+//   // Handles file selection from the file input or drop
+//   const handleFileSelect = (file: File, type: 'csv' | 'zip') => {
+//     // Clear any existing messages
+//     setMessage(null);
+//     const fileInfo: FileInfo = {
+//       file,
+//       name: file.name,
+//       size: formatFileSize(file.size)
+//     };
+
+//     if (type === 'csv') {
+//       // Check if the file is a CSV
+//       if (file.name.split('.').pop()?.toLowerCase() !== 'csv') {
+//         setMessage({ message: 'Please select a valid CSV file.', type: 'error' });
+//         return;
+//       }
+//       setCsvFile(fileInfo);
+//     } else {
+//       // Check if the file is a ZIP
+//       if (file.name.split('.').pop()?.toLowerCase() !== 'zip') {
+//         setMessage({ message: 'Please select a valid ZIP file.', type: 'error' });
+//         return;
+//       }
+//       setZipFile(fileInfo);
+//     }
+//   };
+
+//   // Handles drag-over event for visual feedback
+//   const handleDragOver = (e: React.DragEvent, type: string) => {
+//     e.preventDefault();
+//     e.stopPropagation();
+//     setDragOver(type);
+//   };
+
+//   // Handles drag-leave event
+//   const handleDragLeave = (e: React.DragEvent) => {
+//     e.preventDefault();
+//     e.stopPropagation();
+//     setDragOver(null);
+//   };
+
+//   // Handles drop event to get the file
+//   const handleDrop = (e: React.DragEvent, type: 'csv' | 'zip') => {
+//     e.preventDefault();
+//     e.stopPropagation();
+//     setDragOver(null);
+
+//     const files = e.dataTransfer.files;
+//     if (files.length > 0) {
+//       handleFileSelect(files[0], type);
+//     }
+//   };
+
+//   // Main function to handle the form submission. This version simulates the API call.
+//   const handleSubmit = async () => {
+//     // Basic validation
+//     if (!csvFile) {
+//       setMessage({ message: 'Please select a CSV file to begin.', type: 'error' });
+//       return;
+//     }
+
+//     // Reset results and messages, and start processing
+//     setIsProcessing(true);
+//     setMessage(null);
+//     setValidIds([]);
+//     setRejectedIds([]);
+
+//     // --- Start of Simulated API Call ---
+//     // Simulate a network delay with a Promise and setTimeout
+//     const mockResponse: AnalysisResponse = {
+//       session_id: 'mock-session-12345',
+//       status: 'completed',
+//       analysis: {
+//         valid_app_ids: ['app_001', 'app_003', 'app_005', 'app_008', 'app_011'],
+//         rejected_app_ids: ['app_002', 'app_004', 'app_006', 'app_007', 'app_009', 'app_010'],
+//       },
+//     };
+
+//     try {
+//       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulates a 2-second network request
+
+//       // Use the mock data to update the state as if the API call was successful
+//       setValidIds(mockResponse.analysis.valid_app_ids);
+//       setRejectedIds(mockResponse.analysis.rejected_app_ids);
+//       setMessage({ 
+//         message: `Processing completed successfully! Found ${mockResponse.analysis.valid_app_ids.length} valid and ${mockResponse.analysis.rejected_app_ids.length} rejected applications.`, 
+//         type: 'success' 
+//       });
+//     } catch (err: any) {
+//       // This catch block would handle errors in a real application
+//       setMessage({ message: `Processing failed: ${err.message || 'An unexpected error occurred.'}`, type: 'error' });
+//     } finally {
+//       setIsProcessing(false);
+//     }
+//     // --- End of Simulated API Call ---
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
+//       {/* Header */}
+//       <header className="bg-white border-b border-gray-200">
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//           <div className="flex justify-between items-center h-16">
+//             <div className="flex items-center space-x-3">
+//               <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+//                 <span className="text-white font-bold text-sm">AI</span>
+//               </div>
+//               <span className="text-xl font-semibold text-gray-900">AI Process</span>
+//             </div>
+//             <button
+//               type="button"
+//               onClick={handleSubmit}
+//               disabled={!csvFile || isProcessing}
+//               className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
+//             >
+//               {isProcessing ? 'Processing...' : 'Start Process'}
+//             </button>
+//           </div>
+//         </div>
+//       </header>
+
+//       {/* Main Content */}
+//       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+//         <div className="text-center mb-12">
+//           <h1 className="text-4xl font-bold text-gray-900 mb-4">Data Processing Setup</h1>
+//           <p className="text-xl text-gray-600">Upload your CSV file and OCR files to begin processing</p>
+//         </div>
+
+//         {/* Message Box for success or error */}
+//         {message && (
+//           <div className={`mb-8 p-4 rounded-lg flex items-center space-x-3 
+//             ${message.type === 'error' ? 'bg-red-100 text-red-800 border-red-300' : ''}
+//             ${message.type === 'success' ? 'bg-green-100 text-green-800 border-green-300' : ''}
+//           `}>
+//             {message.type === 'error' && <AlertCircle className="w-5 h-5 flex-shrink-0" />}
+//             {message.type === 'success' && <CheckCircle className="w-5 h-5 flex-shrink-0" />}
+//             <span className="font-medium">{message.message}</span>
+//           </div>
+//         )}
+
+//         <div>
+//           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+//             {/* CSV Upload Card */}
+//             <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+//               <div className="flex items-center space-x-4 mb-6">
+//                 <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+//                   <Upload className="w-6 h-6 text-blue-600" />
+//                 </div>
+//                 <div>
+//                   <h3 className="text-xl font-semibold text-gray-900">Upload CSV File</h3>
+//                   <p className="text-gray-600">Select your data file to process</p>
+//                 </div>
+//               </div>
+
+//               <div
+//                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${
+//                   dragOver === 'csv'
+//                     ? 'border-blue-400 bg-blue-50'
+//                     : 'border-gray-300 hover:border-gray-400 bg-gray-50'
+//                 }`}
+//                 onDragOver={(e) => handleDragOver(e, 'csv')}
+//                 onDragLeave={handleDragLeave}
+//                 onDrop={(e) => handleDrop(e, 'csv')}
+//                 onClick={() => csvInputRef.current?.click()}
+//               >
+//                 <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+//                 <p className="text-lg font-medium text-gray-700 mb-2">Drop your CSV file here</p>
+//                 <p className="text-gray-500">or click to browse</p>
+//                 <input
+//                   ref={csvInputRef}
+//                   type="file"
+//                   accept=".csv"
+//                   className="hidden"
+//                   onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0], 'csv')}
+//                 />
+//               </div>
+
+//               {csvFile && (
+//                 <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+//                   <div className="flex items-center space-x-2 text-blue-800">
+//                     <FileText className="w-4 h-4" />
+//                     <span className="font-medium">{csvFile.name}</span>
+//                     <span className="text-blue-600">({csvFile.size})</span>
+//                   </div>
+//                 </div>
+//               )}
+//             </div>
+
+//             {/* ZIP Upload Card */}
+//             <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+//               <div className="flex items-center space-x-4 mb-6">
+//                 <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
+//                   <Package className="w-6 h-6 text-purple-600" />
+//                 </div>
+//                 <div>
+//                   <h3 className="text-xl font-semibold text-gray-900">Upload OCR Files</h3>
+//                   <p className="text-gray-600">ZIP file containing ID and payslip images</p>
+//                 </div>
+//               </div>
+
+//               <div
+//                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${
+//                   dragOver === 'zip'
+//                     ? 'border-purple-400 bg-purple-50'
+//                     : 'border-gray-300 hover:border-gray-400 bg-gray-50'
+//                 }`}
+//                 onDragOver={(e) => handleDragOver(e, 'zip')}
+//                 onDragLeave={handleDragLeave}
+//                 onDrop={(e) => handleDrop(e, 'zip')}
+//                 onClick={() => zipInputRef.current?.click()}
+//               >
+//                 <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+//                 <p className="text-lg font-medium text-gray-700 mb-2">Drop your ZIP file here</p>
+//                 <p className="text-gray-500">or click to browse</p>
+//                 <input
+//                   ref={zipInputRef}
+//                   type="file"
+//                   accept=".zip"
+//                   className="hidden"
+//                   onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0], 'zip')}
+//                 />
+//               </div>
+
+//               {zipFile && (
+//                 <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+//                   <div className="flex items-center space-x-2 text-purple-800">
+//                     <Package className="w-4 h-4" />
+//                     <span className="font-medium">{zipFile.name}</span>
+//                     <span className="text-purple-600">({zipFile.size})</span>
+//                   </div>
+//                 </div>
+//               )}
+
+//               {/* Help Text */}
+//               <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+//                 <div className="flex items-start space-x-2">
+//                   <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+//                   <div className="text-sm">
+//                     <p className="font-medium text-yellow-800 mb-2">ZIP File Structure:</p>
+//                     <ul className="text-yellow-700 space-y-1">
+//                       <li>• Create folders named with application IDs</li>
+//                       <li>• Each folder should contain:</li>
+//                       <li className="ml-4">- <code className="bg-yellow-100 px-1 rounded">[app_id]_id.jpg</code> (ID image)</li>
+//                       <li className="ml-4">- <code className="bg-yellow-100 px-1 rounded">[app_id]_payslip.png</code> (payslip image)</li>
+//                     </ul>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* Results Display */}
+//           {(validIds.length > 0 || rejectedIds.length > 0) && (
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+//               {/* Valid Applications */}
+//               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+//                 <div className="flex items-center space-x-2 mb-4">
+//                   <CheckCircle className="w-5 h-5 text-green-600" />
+//                   <h3 className="text-xl font-semibold text-gray-900">Valid Applications</h3>
+//                 </div>
+//                 <div className="max-h-64 overflow-y-auto">
+//                   <ul className="list-disc list-inside space-y-2 text-gray-600">
+//                     {validIds.length > 0 ? (
+//                       validIds.map((id) => (
+//                         <li key={id} className="bg-green-50 rounded-md p-2 flex items-center space-x-2 text-green-800 font-medium">
+//                            {id}
+//                         </li>
+//                       ))
+//                     ) : (
+//                       <p className="text-gray-500 text-sm">No valid applications found.</p>
+//                     )}
+//                   </ul>
+//                 </div>
+//               </div>
+//               {/* Rejected Applications */}
+//               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+//                 <div className="flex items-center space-x-2 mb-4">
+//                   <XCircle className="w-5 h-5 text-red-600" />
+//                   <h3 className="text-xl font-semibold text-gray-900">Rejected Applications</h3>
+//                 </div>
+//                 <div className="max-h-64 overflow-y-auto">
+//                   <ul className="list-disc list-inside space-y-2 text-gray-600">
+//                     {rejectedIds.length > 0 ? (
+//                       rejectedIds.map((id) => (
+//                         <li key={id} className="bg-red-50 rounded-md p-2 flex items-center space-x-2 text-red-800 font-medium">
+//                            {id}
+//                         </li>
+//                       ))
+//                     ) : (
+//                       <p className="text-gray-500 text-sm">No rejected applications found.</p>
+//                     )}
+//                   </ul>
+//                 </div>
+//               </div>
+//             </div>
+//           )}
+//         </div>
+//       </main>
+//     </div>
+//   );
+// };
+
+// export default DataProcess;
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Upload, FileText, Package, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+
+// Interface to define the structure for file information
+interface FileInfo {
+  file: File;
+  name: string;
+  size: string;
 }
 
-interface EmailData {
-  subject: string;
-  content: string;
-  recipientEmail: string;
-  senderName: string;
+// Interface for the expected API response
+interface AnalysisResponse {
+  session_id: string;
+  status: string;
+  analysis: {
+    valid_app_ids: string[];
+    rejected_app_ids: string[];
+  };
 }
 
-const ContactClient: React.FC<ContactClientProps> = ({ 
-  clientPhone, 
-  clientEmail = '', 
-  onClose 
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isSending, setIsSending] = useState(false);
-  const [emailData, setEmailData] = useState<EmailData>({
-    subject: '',
-    content: '',
-    recipientEmail: clientEmail,
-    senderName: 'AI Assistant'
-  });
-  const [emailType, setEmailType] = useState('follow_up');
-  const [context, setContext] = useState('');
-  const [step, setStep] = useState<'compose' | 'edit' | 'sent'>('compose');
-  const [error, setError] = useState<string | null>(null);
+// Custom modal/message box interface
+interface MessageInfo {
+  message: string;
+  type: 'error' | 'success' | 'info';
+}
 
-  const API_BASE_URL = 'http://localhost:8000/api'; // Update with your API URL
+const DataProcess: React.FC = () => {
+  // State for the uploaded files
+  const [csvFile, setCsvFile] = useState<FileInfo | null>(null);
+  const [zipFile, setZipFile] = useState<FileInfo | null>(null);
+  
+  // State to track processing status
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  // State for drag-and-drop visual feedback
+  const [dragOver, setDragOver] = useState<string | null>(null);
+  
+  // State for displaying results
+  const [validIds, setValidIds] = useState<string[]>([]);
+  const [rejectedIds, setRejectedIds] = useState<string[]>([]);
+  
+  // State for displaying messages (success, error, etc.)
+  const [message, setMessage] = useState<MessageInfo | null>(null);
 
-  const generateEmailContent = async () => {
-    setIsGenerating(true);
-    setError(null);
+  // References to file input elements for programmatic clicks
+  const csvInputRef = useRef<HTMLInputElement>(null);
+  const zipInputRef = useRef<HTMLInputElement>(null);
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/generate-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          client_phone: clientPhone,
-          context: context || 'General follow-up',
-          email_type: emailType
-        }),
-      });
+  // Utility function to format file size for display
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
-      const data = await response.json();
+  // Handles file selection from the file input or drop
+  const handleFileSelect = (file: File, type: 'csv' | 'zip') => {
+    // Clear any existing messages
+    setMessage(null);
+    const fileInfo: FileInfo = {
+      file,
+      name: file.name,
+      size: formatFileSize(file.size)
+    };
 
-      if (data.success) {
-        // Generate subject based on email type
-        const subjects = {
-          follow_up: 'Following up on our recent conversation',
-          reminder: 'Friendly reminder - Next steps',
-          update: 'Update on your request'
-        };
-
-        setEmailData(prev => ({
-          ...prev,
-          subject: subjects[emailType as keyof typeof subjects] || 'Following up',
-          content: data.generated_content
-        }));
-        setStep('edit');
-      } else {
-        setError('Failed to generate email content. Please try again.');
+    if (type === 'csv') {
+      // Check if the file is a CSV
+      if (file.name.split('.').pop()?.toLowerCase() !== 'csv') {
+        setMessage({ message: 'Please select a valid CSV file.', type: 'error' });
+        return;
       }
-    } catch (err) {
-      setError('Network error. Please check your connection and try again.');
-    } finally {
-      setIsGenerating(false);
+      setCsvFile(fileInfo);
+    } else {
+      // Check if the file is a ZIP
+      if (file.name.split('.').pop()?.toLowerCase() !== 'zip') {
+        setMessage({ message: 'Please select a valid ZIP file.', type: 'error' });
+        return;
+      }
+      setZipFile(fileInfo);
     }
   };
 
-  const sendEmail = async () => {
-    if (!emailData.recipientEmail) {
-      setError('Please provide a recipient email address.');
+  // Handles drag-over event for visual feedback
+  const handleDragOver = (e: React.DragEvent, type: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(type);
+  };
+
+  // Handles drag-leave event
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(null);
+  };
+
+  // Handles drop event to get the file
+  const handleDrop = (e: React.DragEvent, type: 'csv' | 'zip') => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(null);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelect(files[0], type);
+    }
+  };
+
+  // Main function to handle the form submission. This version makes a real API call.
+  const handleSubmit = async () => {
+    // Basic validation
+    if (!csvFile || !zipFile) {
+      setMessage({ message: 'Please upload both a CSV file and a ZIP file.', type: 'error' });
       return;
     }
 
-    setIsSending(true);
-    setError(null);
+    // Reset results and messages, and start processing
+    setIsProcessing(true);
+    setMessage(null);
+    setValidIds([]);
+    setRejectedIds([]);
+
+    // Create a FormData object to send both files
+    const formData = new FormData();
+    formData.append('csvFile', csvFile.file);
+    formData.append('zipFile', zipFile.file);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/send-email`, {
+      // Make the API call to your backend endpoint
+      const response = await fetch('http://localhost:8000/process-files', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          recipient_email: emailData.recipientEmail,
-          subject: emailData.subject,
-          content: emailData.content,
-          sender_name: emailData.senderName
-        }),
+        body: formData,
       });
 
-      const data = await response.json();
-
-      if (data.success) {
-        setStep('sent');
-      } else {
-        setError('Failed to send email. Please try again.');
+      // Handle non-200 responses
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Processing failed on the server.');
       }
-    } catch (err) {
-      setError('Network error. Please check your connection and try again.');
+
+      // Parse the JSON response
+      const result: AnalysisResponse = await response.json();
+
+      // Update the state with the real data from the backend
+      setValidIds(result.analysis.valid_app_ids);
+      setRejectedIds(result.analysis.rejected_app_ids);
+      setMessage({ 
+        message: `Processing completed successfully! Found ${result.analysis.valid_app_ids.length} valid and ${result.analysis.rejected_app_ids.length} rejected applications.`, 
+        type: 'success' 
+      });
+    } catch (err: any) {
+      // Handle network or server-side errors
+      setMessage({ message: `Processing failed: ${err.message || 'An unexpected error occurred.'}`, type: 'error' });
     } finally {
-      setIsSending(false);
+      setIsProcessing(false);
     }
   };
 
-  const resetForm = () => {
-    setStep('compose');
-    setEmailData({
-      subject: '',
-      content: '',
-      recipientEmail: clientEmail,
-      senderName: 'AI Assistant'
-    });
-    setContext('');
-    setError(null);
-  };
-
-  const handleClose = () => {
-    setIsOpen(false);
-    resetForm();
-    onClose?.();
-  };
-
-  if (!isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
-      >
-        <Mail className="w-5 h-5" />
-        <span>Contact Client</span>
-      </button>
-    );
-  }
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-        {/* Header */}
-        <div className="bg-red-600 text-white p-6 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Mail className="w-6 h-6" />
-            <div>
-              <h2 className="text-xl font-bold">Contact Client</h2>
-              <p className="text-red-100 text-sm">Phone: {clientPhone}</p>
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">AI</span>
+              </div>
+              <span className="text-xl font-semibold text-gray-900">AI Process</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!csvFile || !zipFile || isProcessing}
+              className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
+            >
+              {isProcessing ? 'Processing...' : 'Start Process'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Data Processing Setup</h1>
+          <p className="text-xl text-gray-600">Upload your CSV file and OCR files to begin processing</p>
+        </div>
+
+        {/* Message Box for success or error */}
+        {message && (
+          <div className={`mb-8 p-4 rounded-lg flex items-center space-x-3 
+            ${message.type === 'error' ? 'bg-red-100 text-red-800 border-red-300' : ''}
+            ${message.type === 'success' ? 'bg-green-100 text-green-800 border-green-300' : ''}
+          `}>
+            {message.type === 'error' && <AlertCircle className="w-5 h-5 flex-shrink-0" />}
+            {message.type === 'success' && <CheckCircle className="w-5 h-5 flex-shrink-0" />}
+            <span className="font-medium">{message.message}</span>
+          </div>
+        )}
+
+        <div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* CSV Upload Card */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+                  <Upload className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Upload CSV File</h3>
+                  <p className="text-gray-600">Select your data file to process</p>
+                </div>
+              </div>
+
+              <div
+                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${
+                  dragOver === 'csv'
+                    ? 'border-blue-400 bg-blue-50'
+                    : 'border-gray-300 hover:border-gray-400 bg-gray-50'
+                }`}
+                onDragOver={(e) => handleDragOver(e, 'csv')}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, 'csv')}
+                onClick={() => csvInputRef.current?.click()}
+              >
+                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-lg font-medium text-gray-700 mb-2">Drop your CSV file here</p>
+                <p className="text-gray-500">or click to browse</p>
+                <input
+                  ref={csvInputRef}
+                  type="file"
+                  accept=".csv"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0], 'csv')}
+                />
+              </div>
+
+              {csvFile && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-blue-800">
+                    <FileText className="w-4 h-4" />
+                    <span className="font-medium">{csvFile.name}</span>
+                    <span className="text-blue-600">({csvFile.size})</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ZIP Upload Card */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
+                  <Package className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Upload OCR Files</h3>
+                  <p className="text-gray-600">ZIP file containing ID and payslip images</p>
+                </div>
+              </div>
+
+              <div
+                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${
+                  dragOver === 'zip'
+                    ? 'border-purple-400 bg-purple-50'
+                    : 'border-gray-300 hover:border-gray-400 bg-gray-50'
+                }`}
+                onDragOver={(e) => handleDragOver(e, 'zip')}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, 'zip')}
+                onClick={() => zipInputRef.current?.click()}
+              >
+                <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-lg font-medium text-gray-700 mb-2">Drop your ZIP file here</p>
+                <p className="text-gray-500">or click to browse</p>
+                <input
+                  ref={zipInputRef}
+                  type="file"
+                  accept=".zip"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0], 'zip')}
+                />
+              </div>
+
+              {zipFile && (
+                <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-purple-800">
+                    <Package className="w-4 h-4" />
+                    <span className="font-medium">{zipFile.name}</span>
+                    <span className="text-purple-600">({zipFile.size})</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Help Text */}
+              <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-start space-x-2">
+                  <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-yellow-800 mb-2">ZIP File Structure:</p>
+                    <ul className="text-yellow-700 space-y-1">
+                      <li>• Create folders named with application IDs</li>
+                      <li>• Each folder should contain:</li>
+                      <li className="ml-4">- <code className="bg-yellow-100 px-1 rounded">[app_id]_id.jpg</code> (ID image)</li>
+                      <li className="ml-4">- <code className="bg-yellow-100 px-1 rounded">[app_id]_payslip.png</code> (payslip image)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <button
-            onClick={handleClose}
-            className="text-red-100 hover:text-white transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
 
-        {/* Content */}
-        <div className="p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2 text-red-700">
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
-              <span className="text-sm">{error}</span>
-            </div>
-          )}
-
-          {step === 'compose' && (
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Type
-                </label>
-                <select
-                  value={emailType}
-                  onChange={(e) => setEmailType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                >
-                  <option value="follow_up">Follow-up</option>
-                  <option value="reminder">Reminder</option>
-                  <option value="update">Update</option>
-                </select>
+          {/* Results Display */}
+          {(validIds.length > 0 || rejectedIds.length > 0) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Valid Applications */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center space-x-2 mb-4">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <h3 className="text-xl font-semibold text-gray-900">Valid Applications</h3>
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  <ul className="list-disc list-inside space-y-2 text-gray-600">
+                    {validIds.length > 0 ? (
+                      validIds.map((id) => (
+                        <li key={id} className="bg-green-50 rounded-md p-2 flex items-center space-x-2 text-green-800 font-medium">
+                           {id}
+                        </li>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-sm">No valid applications found.</p>
+                    )}
+                  </ul>
+                </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Context (Optional)
-                </label>
-                <textarea
-                  value={context}
-                  onChange={(e) => setContext(e.target.value)}
-                  placeholder="Provide additional context for the email..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 h-24 resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Recipient Email
-                </label>
-                <input
-                  type="email"
-                  value={emailData.recipientEmail}
-                  onChange={(e) => setEmailData(prev => ({ ...prev, recipientEmail: e.target.value }))}
-                  placeholder="client@example.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                />
-              </div>
-
-              <button
-                onClick={generateEmailContent}
-                disabled={isGenerating}
-                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader className="w-5 h-5 animate-spin" />
-                    <span>Generating Email...</span>
-                  </>
-                ) : (
-                  <>
-                    <Edit3 className="w-5 h-5" />
-                    <span>Generate Email with AI</span>
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-
-          {step === 'edit' && (
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  value={emailData.subject}
-                  onChange={(e) => setEmailData(prev => ({ ...prev, subject: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Content
-                </label>
-                <textarea
-                  value={emailData.content}
-                  onChange={(e) => setEmailData(prev => ({ ...prev, content: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 h-64 resize-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={resetForm}
-                  className="py-3 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-                >
-                  Start Over
-                </button>
-                <button
-                  onClick={sendEmail}
-                  disabled={isSending}
-                  className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
-                >
-                  {isSending ? (
-                    <>
-                      <Loader className="w-5 h-5 animate-spin" />
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5" />
-                      <span>Send Email</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 'sent' && (
-            <div className="text-center py-8">
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Email Sent Successfully!</h3>
-              <p className="text-gray-600 mb-6">
-                Your message has been delivered to {emailData.recipientEmail}
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={resetForm}
-                  className="py-2 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-                >
-                  Send Another
-                </button>
-                <button
-                  onClick={handleClose}
-                  className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
-                >
-                  Close
-                </button>
+              {/* Rejected Applications */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center space-x-2 mb-4">
+                  <XCircle className="w-5 h-5 text-red-600" />
+                  <h3 className="text-xl font-semibold text-gray-900">Rejected Applications</h3>
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  <ul className="list-disc list-inside space-y-2 text-gray-600">
+                    {rejectedIds.length > 0 ? (
+                      rejectedIds.map((id) => (
+                        <li key={id} className="bg-red-50 rounded-md p-2 flex items-center space-x-2 text-red-800 font-medium">
+                           {id}
+                        </li>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-sm">No rejected applications found.</p>
+                    )}
+                  </ul>
+                </div>
               </div>
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-export default ContactClient;
+export default DataProcess;
+
