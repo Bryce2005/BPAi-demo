@@ -24,12 +24,11 @@ import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
 
 # Dictionary to store fitted encoders globally (per column)
-ENCODER_STORE = {}
 
 non_features = ['application_id', 'application_date', 'first_name', 'middle_name',
        'last_name', 'contact_number', 'email_address']
 
-# --- Step 1 & 2: Input Data and Y Variable Creation (No Changes) ---
+# --- Step 1 & 2: Input Data and Y Variable Creation ---
 
 def load_and_preprocess_data(filepath="outdir/synthetic_data.csv"):
     """
@@ -43,7 +42,6 @@ def load_and_preprocess_data(filepath="outdir/synthetic_data.csv"):
             le = LabelEncoder()
             df[col] = le.fit_transform(df[col])
             ENCODER_STORE[col] = le
-#     df.fillna(df.median(), inplace=True) 
     feature_cols = [col for col in df.columns if col not in non_features and df[col].dtype in [float, int]]
     df[feature_cols] = df[feature_cols].fillna(df[feature_cols].median())
     weights = {
@@ -65,12 +63,10 @@ def load_and_preprocess_data(filepath="outdir/synthetic_data.csv"):
     df['risk_index_score'] = 1 - df['risk_index_score']
     
     # --- MODIFICATION FOR BELL CURVE DISTRIBUTION ---
-    # New method using cut for bell-curve distribution
     score_mean = df['risk_index_score'].mean()
     score_std = df['risk_index_score'].std()
     
     # Define bin edges based on standard deviations from the mean
-    # This creates narrower bins in the middle and wider bins at the extremes
     bin_edges = [
         df['risk_index_score'].min() - 0.01, # ensure the lowest value is included
         score_mean - 1.5 * score_std,       # Loss
@@ -80,16 +76,18 @@ def load_and_preprocess_data(filepath="outdir/synthetic_data.csv"):
         df['risk_index_score'].max() + 0.01  # ensure the highest value is included
     ]
     
-    # Use pd.cut with the defined edges
-    # Note: We reverse the labels because a lower score is better (Pass)
     df['risk_category'] = pd.cut(df['risk_index_score'], bins=bin_edges, labels=[4, 3, 2, 1, 0], right=False)
     df['risk_category'] = df['risk_category'].astype(int)
 
-    print("Risk Category Distribution (Bell Curve):")
-    print(df['risk_category'].value_counts().sort_index())
+#     print("Risk Category Distribution (Bell Curve):")
+#     print(df['risk_category'].value_counts().sort_index())
     return df
 
 # --- Step 2: Model Training and Evaluation (No Changes) ---
+
+def encode_df(df):
+    X = df.drop(columns=['risk_index_score', 'risk_category']+[col for col in non_features if col != 'application_id'])
+    return X
 
 def ls_train_test_split(df):
     df = df.set_index('application_id')
@@ -116,12 +114,6 @@ def train_ordinal_gbm(X_train, y_train):
     model.fit(X_train, y_train)
     return model
 
-# def evaluate_model(model, X_test, y_test, target_names):
-#     y_pred = model.predict(X_test)
-#     print("\nClassification Report:")
-#     print(classification_report(y_test, y_pred, target_names=target_names))
-#     print("Confusion Matrix:")
-#     print(confusion_matrix(y_test, y_pred))
 
 def evaluate_model(model, X_test, y_test, target_names):
     y_pred = model.predict(X_test)
@@ -141,7 +133,6 @@ def evaluate_model(model, X_test, y_test, target_names):
         annot=True,
         fmt=".2%",
         cmap=LinearSegmentedColormap.from_list("bpi", ["#7B1113", "#E6B012"]), 
-        #sns.color_palette(["#7B1113", "#E6B012"]),  # gradient from red → gold
         xticklabels=target_names,
         yticklabels=target_names,
         cbar=True,
@@ -170,10 +161,6 @@ def generate_shap_waterfall_plot(model, X, instance_index, filename="shap_waterf
 
 # --- Step 3: Prediction and Explanation (Minor Changes to Aggregated LIME) ---
 
-# RISK_CATEGORY_MAP = {
-#     0: "Pass", 1: "Especially Mentioned (EM)", 2: "Substandard",
-#     3: "Doubtful", 4: "Loss"
-# }
 
 RISK_CATEGORY_MAP = {
     0: "Secure", 1: "Unstable", 2: "Risky",
@@ -190,12 +177,10 @@ def clean_lime_feature_name(name, feature_list):
     """
     Extract the actual feature name from LIME bin strings.
     """
-    name = name.strip()  # remove whitespace
-    # Try to match one of the original feature names
+    name = name.strip()
     for f in feature_list:
         if f in name:
             return f
-    # fallback: remove numeric characters and symbols
     return ''.join([c for c in name if not c.isdigit() and c not in '<>=. '])
 
 def generate_lime_explanation(df, application_id, 
@@ -209,9 +194,6 @@ def generate_lime_explanation(df, application_id,
     
     # --- Select the row by application_id column ---
     row_mask = df['application_id'] == application_id
-#     if not row_mask.any():
-#         raise ValueError(f"Application ID {application_id} not found in df['application_id']")
-#     data_row = df.loc[row_mask, X_train.columns].iloc[0].values  # 1D array
     data_row = sample_application.values[0]
     
     num_features = X_train.shape[1]
@@ -258,15 +240,11 @@ def generate_lime_explanation(df, application_id,
     
     # --- Export PNG using the correct label ---
     fig = explanation.as_pyplot_figure(label=label_to_use)
-
-    # Add descriptive title
     fig.suptitle(
         f"LIME Explanation for Application {application_id}\n(Predicted: {predicted_category_name})",
         fontsize=14,
-        y=1.02  # push title a bit higher so it's not clipped
+        y=1.02
     )
-
-    # Layout adjustments to avoid cutoff
     fig.savefig(filepath, bbox_inches="tight")
     plt.close(fig)
 
@@ -300,7 +278,6 @@ def generate_shap_explanation(df, application_id,
         explainer = shap.KernelExplainer(model.predict_proba, X_train.sample(50, random_state=42))
     
     # --- Compute SHAP values ---
-#     shap_values = explainer.shap_values(data_row)  # list if multiclass, array if binary
     shap_values = explainer.shap_values(data_row.reshape(1, -1))  # make 2D for LightGBM
     
     if isinstance(shap_values, list):  # multiclass
@@ -431,7 +408,7 @@ def generate_aggregated_lime(df, application_id, lime_explanation, predicted_cat
         col_name = f"{category}_importance_for_{predicted_category}"
         if col_name not in df.columns:
             df[col_name] = np.nan
-        df.loc[row_mask, col_name] = float(score)  # scalar assignment
+        df.loc[row_mask, col_name] = float(score) 
 
     # --- Plot ---
     sorted_scores = sorted(aggregated_scores.items(), key=lambda item: item[1])
@@ -450,27 +427,3 @@ def generate_aggregated_lime(df, application_id, lime_explanation, predicted_cat
     print(f"Aggregated LIME plot saved to {filepath}")
 
     return aggregated_scores, df
-
-### --- Added functionality: undo encoding ---
-def decode_categoricals(df, encoder_store=ENCODER_STORE):
-    """
-    Decodes encoded categorical columns back to their original string values.
-    
-    Parameters:
-    -----------
-    df : pd.DataFrame
-        DataFrame with encoded categorical columns.
-    encoder_store : dict
-        Dictionary with {col_name: LabelEncoder}.
-    
-    Returns:
-    --------
-    decoded_df : pd.DataFrame
-        Copy of df with categorical columns decoded back to strings.
-    """
-    decoded_df = df.copy()
-    for col, le in encoder_store.items():
-        if col in decoded_df.columns:
-            decoded_df[col] = le.inverse_transform(decoded_df[col])
-    return decoded_df
-
