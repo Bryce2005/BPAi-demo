@@ -1,19 +1,19 @@
 lime
-langgraph
-azure-ai-documentintelligence
-faker
+# langgraph
+# azure-ai-documentintelligence
+# faker
 fastapi
 uvicorn
-sqlalchemy
-psycopg2-binary
-alembic
-python-multipart
+# sqlalchemy
+# psycopg2-binary
+# alembic
+# python-multipart
 pandas
 numpy
-python-jose[cryptography]
-passlib[bcrypt]
-python-dotenv
-pydantic[email]
+# python-jose[cryptography]
+# passlib[bcrypt]
+# python-dotenv
+# pydantic[email]
 google.generativeai
 lightgbm
 shap
