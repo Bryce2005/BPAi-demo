@@ -24,7 +24,7 @@ import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
 
 # Dictionary to store fitted encoders globally (per column)
-
+ENCODER_STORE = {}
 non_features = ['application_id', 'application_date', 'first_name', 'middle_name',
        'last_name', 'contact_number', 'email_address']
 
