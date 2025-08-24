@@ -1,6 +1,16 @@
-import React, { useState } from 'react';
-import { X, Mail, Send, Paperclip, User, Phone, MapPin, HandCoins} from 'lucide-react';
+import { useState } from 'react';
+import { X, Mail, Send, Paperclip, User, HandCoins} from 'lucide-react';
 
+const getRiskCategoryColor = (category: string) => {
+  const colors = {
+    'Secure': 'bg-green-100 text-green-800 border-green-200',
+    'Unstable': 'bg-blue-100 text-blue-800 border-blue-200',
+    'Risky': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'Critical': 'bg-purple-100 text-purple-800 border-purple-200',
+    'Default': 'bg-red-100 text-red-800 border-red-200',
+  };
+  return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200';
+};
 
 const OverviewPage = ({application}: any) => {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -124,15 +134,15 @@ const OverviewPage = ({application}: any) => {
               </div>
             </div>
           </div>
-
+ 
           {/* Application Status */}
-          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className={`mt-8 p-4 ${getRiskCategoryColor(application.status)} rounded-lg`}>
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-medium text-gray-900">Application Status</h4>
-                <p className="text-sm text-gray-600">Submitted on {application.submittedDate}</p>
+                {/* <p className="text-sm text-gray-600">Submitted on: {new Date(application.application_date).toLocaleDateString() || "Date not record"}</p> */}
               </div>
-              <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getRiskCategoryColor(application.status)}`}>
                 {application.status}
               </span>
             </div>

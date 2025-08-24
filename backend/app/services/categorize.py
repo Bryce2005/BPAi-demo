@@ -1,6 +1,8 @@
 from loan_screening import predict_loan_application, load_and_preprocess_data, ls_train_test_split, train_ordinal_gbm, evaluate_model,RISK_CATEGORY_MAP, generate_lime_explanation
 import pandas as pd
-
+import json
+import numpy as np
+import math
 
 def categorize(test_csv_path):
     train_data_path = "../../sample_data/apps_synthetic_data.csv"
@@ -38,6 +40,17 @@ def categorize(test_csv_path):
     result_df["probabilities"] = probabilities_list
 
     return result_df.to_dict('records')
-    
 
+def make_serializable(obj):
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, float) and math.isnan(obj):
+        return None
+    return obj
     
+if __name__ == '__main__':
+    data = categorize("../../sample_data/apps_synthetic_data_200.csv")
+    with open("applications.json", "w") as f:
+        json.dump(data, f, indent=2, default=make_serializable)
+    import os
+    print("Saving to:", os.path.abspath("applications.json"))

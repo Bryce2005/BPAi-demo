@@ -1,8 +1,4 @@
-import type { LoanApplication } from './types';
-
-// This is the updated application data array.
-// The data has been re-indexed to start with id 1 and application_id 'APP-2024-001'.
-export const applicationDataX: LoanApplication[] = [
+[
   {
     "application_id": "APP-20250213-2824",
     "application_date": "5/28/2025",
@@ -4496,9 +4492,7 @@ export const applicationDataX: LoanApplication[] = [
       0.0003990792274445708,
       5.4399806902990285e-05
     ]
-  }
-]
-export const applicationDataY: LoanApplication[] = [
+  },
   {
     "application_id": "APP-20250315-3885",
     "application_date": "3/15/2025",
@@ -8406,4 +8400,3 @@ export const applicationDataY: LoanApplication[] = [
     ]
   }
 ]
-

@@ -2,11 +2,12 @@ import { useState} from 'react';
 import { X, TrendingUp, CheckCircle, Brain, FileText} from 'lucide-react';
 import OverviewPage from './Overview';
 import RiskAnalysisPage from './RiskAnalysis';
+import AIInsights from './AIAnalysis';
 
 // Move interface outside component
 interface MLAnalysis {
   riskCategory: string;
-  riskScore: number;
+  confidenceScore: number;
   probabilities: Record<string, number>;
   limeFeatures: Array<{ feature: string; impact: number; description: string }>;
   fiveCAnalysis: Record<string, number>;
@@ -24,6 +25,28 @@ const ApplicationDetailsModal = ({ application, isOpen, onClose }: ApplicationDe
   const [activeTab, setActiveTab] = useState('overview');
   // Add mlAnalysis state if you need it for the modal header
   const [mlAnalysis, setMlAnalysis] = useState<MLAnalysis | null>(null);
+  const handleAnalysisStateChange = (analyzing: any) => {
+    setIsAnalyzing(analyzing);
+  };
+  const [sharedAnalysis, setSharedAnalysis] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const handleAnalysisComplete = (analysis: any) => {
+    setSharedAnalysis(analysis);
+  };
+  
+  const resetAnalysis = () => {
+    setSharedAnalysis(null);
+    setIsAnalyzing(false);
+    // Also clear the global cache if you're using it
+    if ((window as any).analysisCache) {
+      delete (window as any).analysisCache[application.applicationId];
+    }
+  };
+  
+  const handleBackClick = () => {
+    resetAnalysis(); // Reset the analysis state
+    onClose(); // Close the modal/dialog
+  };
 
   const getRiskCategoryColor = (category: string) => {
     switch (category) {
@@ -51,7 +74,7 @@ const ApplicationDetailsModal = ({ application, isOpen, onClose }: ApplicationDe
         <div className="flex items-center justify-between p-6 border-b bg-gray-50">
           <div className="flex items-center gap-3">
             <button 
-              onClick={onClose}
+              onClick={handleBackClick}
               className="flex items-center gap-2 text-red-600 hover:text-red-800 font-medium"
             >
               ← Back
@@ -68,7 +91,7 @@ const ApplicationDetailsModal = ({ application, isOpen, onClose }: ApplicationDe
               </div>
             )}
             <button 
-              onClick={onClose}
+              onClick={handleBackClick}
               className="p-2 hover:bg-gray-200 rounded-full"
             >
               <X className="w-5 h-5" />
@@ -108,72 +131,16 @@ const ApplicationDetailsModal = ({ application, isOpen, onClose }: ApplicationDe
           {activeTab === 'risk-analysis' && (
             <RiskAnalysisPage 
               application={application}
-              onAnalysisComplete={setMlAnalysis}
+              existingAnalysis={sharedAnalysis}
+              onAnalysisComplete={handleAnalysisComplete}
+              // onAnalysisStateChange={handleAnalysisStateChange}
+              autoRunAnalysis={false}
             />
           )}
 
           {/* AI Insights Tab */}
           {activeTab === 'explanations' && (
-            <div className="p-6">
-              {mlAnalysis ? (
-                <div className="space-y-6">
-                  {/* AI Summary */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                    <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
-                      <Brain className="w-5 h-5" />
-                      AI Analysis Summary
-                    </h4>
-                    <p className="text-blue-700 leading-relaxed">{mlAnalysis.aiSummary}</p>
-                  </div>
-
-                  {/* Improvement Suggestions */}
-                  <div className="bg-white border rounded-lg p-6">
-                    <h4 className="font-semibold mb-4 flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                      Recommended Improvements
-                    </h4>
-                    <div className="space-y-4">
-                      {mlAnalysis.improvements.map((improvement, index) => {
-                        const [title, ...content] = improvement.split(':');
-                        return (
-                          <div key={index} className="border-l-4 border-green-500 pl-4 py-2">
-                            <div className="font-medium text-green-700">{title.replace(/\*/g, '')}</div>
-                            <div className="text-gray-700 mt-1">{content.join(':')}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Action Items */}
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                    <h4 className="font-semibold text-yellow-800 mb-4">Recommended Next Steps</h4>
-                    <ul className="space-y-2 text-yellow-700">
-                      <li className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 bg-yellow-600 rounded-full mt-2 flex-shrink-0"></span>
-                        Schedule a follow-up call to discuss income improvement strategies
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 bg-yellow-600 rounded-full mt-2 flex-shrink-0"></span>
-                        Request additional documentation for alternative data verification
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 bg-yellow-600 rounded-full mt-2 flex-shrink-0"></span>
-                        Consider offering a smaller loan amount as an initial step
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center py-12">
-                  <div className="text-center">
-                    <Brain className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-lg font-medium text-gray-600">Run risk analysis first to see AI insights</p>
-                    <p className="text-sm text-gray-500 mt-2">Switch to the Risk Analysis tab to generate insights</p>
-                  </div>
-                </div>
-              )}
-            </div>
+            <AIInsights mlAnalysis={sharedAnalysis} isLoading={isAnalyzing} />
           )}
         </div>
       </div>

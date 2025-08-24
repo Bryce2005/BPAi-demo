@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Eye, Phone, MapPin, FileText, Users, AlertTriangle, CheckCircle } from 'lucide-react';
+import {Phone, MapPin} from 'lucide-react';
 
 // --- Interfaces ---
 export interface BaseDataItem {
@@ -74,6 +74,7 @@ interface GenericDataTableProps<T extends BaseDataItem> {
   data: T[];
   config: TableConfig<T>;
   onRowClick?: (item: T) => void;
+  onViewDetails?: (item: T) => void; 
 }
 
 // --- Main Component ---
@@ -81,6 +82,7 @@ const GenericDataTable = <T extends BaseDataItem>({
   data,
   config,
   onRowClick,
+  onViewDetails,
 }: GenericDataTableProps<T>) => {
   const [currentView, setCurrentView] = useState<'summary' | 'spreadsheet'>('spreadsheet');
   const [searchTerm, setSearchTerm] = useState('');
@@ -117,11 +119,13 @@ const GenericDataTable = <T extends BaseDataItem>({
       }
       // Date filter
       if (selectedDate && item.applicationDate) {
-        const itemDate = new Date(item.applicationDate as string).toISOString().slice(0, 10);
+        const itemDateObj = new Date(item.applicationDate as string);
+        const itemDate = `${itemDateObj.getFullYear()}-${String(itemDateObj.getMonth() + 1).padStart(2, '0')}-${String(itemDateObj.getDate()).padStart(2, '0')}`;
         if (itemDate !== selectedDate) {
           return false;
         }
       }
+      
       // Search filter
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
@@ -245,7 +249,7 @@ const GenericDataTable = <T extends BaseDataItem>({
                       </div>
                       <div className="flex items-center space-x-2">
                         <span className={`text-l font-bold ${getScoreColor(Number(Math.max(...item.probabilities)) * 100)}`}>
-                          Confidence: {Number(Math.max(...item.probabilities)) * 100}
+                          Confidence: {(Number(Math.max(...item.probabilities)) * 100).toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -416,7 +420,7 @@ const GenericDataTable = <T extends BaseDataItem>({
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => onRowClick?.(item)}
-                          className="w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                          className="ml-4 w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                           title="View details"
                         >
                           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

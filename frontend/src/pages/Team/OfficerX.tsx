@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import { X, Eye, Phone, MapPin, FileText, Users, AlertTriangle, CheckCircle } from 'lucide-react';
 import GenericDataTable from '../../components/GenericDataTable';
 import ApplicationDetailsModal from '../../components/AppDetails';
-import type { ApplicationFormat } from '../../shared/types.ts';
+import type { LoanApplication } from '../../shared/types.ts';
 import { applicationDataX } from '../../shared/data.ts';
 
 const OfficerX: React.FC = () => {
-  const [selectedApplication, setSelectedApplication] = useState<ApplicationFormat | null>(null);
+  const navigate = useNavigate();
+  const [selectedApplication, setSelectedApplication] = useState<LoanApplication | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleViewDetails = (application: ApplicationFormat) => {
-    setSelectedApplication(application);
-    setIsModalOpen(true);
+  const handleViewDetails = (item: any) => {
+    navigate(`/application/${item.id}?tab=overview`);
   };
+
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -25,20 +27,20 @@ const OfficerX: React.FC = () => {
     status: app.risk_category,
     confidenceScore: Math.max(...app.probabilities),
     rationale: app.loan_purpose,
-    applicationDate: new Date(app.processed_at).toLocaleDateString(),
+    applicationDate: new Date(app.application_date).toLocaleDateString(),
     clientName: `${app.first_name} ${app.last_name}`,
     contactNumber: app.contact_number,
     address: `${app.address_city}, ${app.address_province}`
   }));
 
   // Transform data for modal to match expected structure
-  const transformForModal = (app: ApplicationFormat) => {
+  const transformForModal = (app: LoanApplication) => {
     return {
       applicationId: app.application_id,
       status: app.risk_category as 'Approved' | 'Rejected' | 'For Review' | 'Pending',
       confidenceScore: Math.max(...app.probabilities),
       rationale: app.loan_purpose,
-      submissionDate: new Date(app.processed_at).toLocaleDateString(),
+      submissionDate: new Date(app.application_date).toLocaleDateString(),
       fullName: `${app.first_name} ${app.last_name}`,
       email: app.email_address,
       phoneNumber: app.contact_number,
@@ -231,6 +233,7 @@ const OfficerX: React.FC = () => {
     }
   };
 
+
   const handleRowClick = (item: any) => {
     // Find the original application data using application_id
     const originalApp = applicationDataX.find(app => app.application_id === item.application_id);
@@ -249,6 +252,7 @@ const OfficerX: React.FC = () => {
         data={transformedData}
         config={tableConfig}
         onRowClick={handleRowClick}
+        // onViewDetails={handleViewDetails}
       />
       <ApplicationDetailsModal
         application={selectedApplication}
