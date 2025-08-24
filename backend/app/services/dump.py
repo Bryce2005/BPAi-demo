@@ -1,4 +1,4 @@
-# # loan_screening.py
+# loan_screening.py
 
 # import os
 # import pandas as pd
