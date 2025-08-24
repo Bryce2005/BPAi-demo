@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Upload, BrainCircuit, FileText, Package, AlertCircle, CheckCircle, XCircle, FileCheck, FileX, Download, Mail, Send, Settings, Brain } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Upload, BrainCircuit, FileText, Package, AlertCircle, CheckCircle, XCircle, FileCheck, FileX, Download, Send, Settings } from 'lucide-react';
 import './DataProcess.css';
 
 // Interface to define the structure for file information
@@ -385,39 +385,39 @@ Application Review Team`,
   };
 
   // Function to send emails via EmailJS
-  const sendEmailViaEmailJS = async (emailData: Array<{applicationId: string, email: string, subject: string, content: string}>) => {
-    const { serviceId, templateId, publicKey } = emailSettings.emailjsConfig || {};
+  // const sendEmailViaEmailJS = async (emailData: Array<{applicationId: string, email: string, subject: string, content: string}>) => {
+  //   const { serviceId, templateId, publicKey } = emailSettings.emailjsConfig || {};
     
-    if (!serviceId || !templateId || !publicKey) {
-      throw new Error('EmailJS configuration is incomplete. Please check your service ID, template ID, and public key.');
-    }
+  //   if (!serviceId || !templateId || !publicKey) {
+  //     throw new Error('EmailJS configuration is incomplete. Please check your service ID, template ID, and public key.');
+  //   }
 
-    // Note: EmailJS would need to be imported as a script tag or installed as a package
-    // For demonstration, we'll show how it would work:
+  //   // Note: EmailJS would need to be imported as a script tag or installed as a package
+  //   // For demonstration, we'll show how it would work:
     
-    const results = [];
-    for (const email of emailData) {
-      try {
-        // This would be the actual EmailJS call:
-        // const result = await emailjs.send(serviceId, templateId, {
-        //   to_email: email.email,
-        //   subject: email.subject,
-        //   message: email.content,
-        //   application_id: email.applicationId
-        // }, publicKey);
+  //   const results = [];
+  //   for (const email of emailData) {
+  //     try {
+  //       // This would be the actual EmailJS call:
+  //       // const result = await emailjs.send(serviceId, templateId, {
+  //       //   to_email: email.email,
+  //       //   subject: email.subject,
+  //       //   message: email.content,
+  //       //   application_id: email.applicationId
+  //       // }, publicKey);
         
-        // Simulating EmailJS response for now
-        await new Promise(resolve => setTimeout(resolve, 500));
-        results.push({ success: true, applicationId: email.applicationId });
-        console.log(`EmailJS: Email sent to ${email.email} for application ${email.applicationId}`);
-      } catch (error) {
-        results.push({ success: false, applicationId: email.applicationId, error });
-        console.error(`EmailJS: Failed to send email for application ${email.applicationId}:`, error);
-      }
-    }
+  //       // Simulating EmailJS response for now
+  //       await new Promise(resolve => setTimeout(resolve, 500));
+  //       results.push({ success: true, applicationId: email.applicationId });
+  //       console.log(`EmailJS: Email sent to ${email.email} for application ${email.applicationId}`);
+  //     } catch (error) {
+  //       results.push({ success: false, applicationId: email.applicationId, error });
+  //       console.error(`EmailJS: Failed to send email for application ${email.applicationId}:`, error);
+  //     }
+  //   }
     
-    return results;
-  };
+  //   return results;
+  // };
 
   // Function to send automated emails
   // Function to send automated emails

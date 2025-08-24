@@ -34,13 +34,13 @@ class ChatResponse(BaseModel):
     timestamp: datetime
 
 def load_application_data():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    json_path = os.path.join(current_dir, 'application_data.json')
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    json_path = os.path.join(base_dir, "application_data.json")
     with open(json_path, 'r') as f:
             data = json.load(f)
             return data.get('applicationDataY', []) + data.get('applicationDataX', [])
 
-
+DASHBOARD_DATA = json.dumps(load_application_data(), indent=2)
 
 def create_system_prompt():
     """Create the system prompt with dashboard context"""

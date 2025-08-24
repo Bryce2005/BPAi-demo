@@ -16,3 +16,5 @@ python-dotenv
 pydantic[email]
 google.generativeai
 lightgbm
+shap
+seaborn

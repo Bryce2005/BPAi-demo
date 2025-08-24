@@ -3,6 +3,7 @@ from sqlalchemy.sql import func
 from .database import Base
 from pydantic import BaseModel
 from typing import Optional
+from typing import List, Dict, Optional
 
 class AnalysisSession(Base):
     __tablename__ = "analysis_sessions"
@@ -61,6 +62,14 @@ class Application(BaseModel):
     loan_amount_requested_php: float
     loan_tenor_months: int
 
+class RiskAnalysisResponse(BaseModel):
+    riskCategory: str
+    riskScore: float
+    probabilities: Dict[str, float]
+    limeFeatures: List[Dict[str, str]]
+    fiveCAnalysis: Dict[str, float]
+    improvements: List[str]
+    aiSummary: str
 
 # This is what test_db.py was looking for
 # You can add more models here later

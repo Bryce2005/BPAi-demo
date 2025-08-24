@@ -44,26 +44,3 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
-
-@app.post("/parse-csv/", response_model=List[Application])
-async def parse_csv(file: UploadFile = File(...)):
-    contents = await file.read()
-    df = pd.read_csv(StringIO(contents.decode("utf-8")))
-
-    # Replace NaN with None
-    df = df.replace({np.nan: None})
-
-    # Convert contact_number and other numeric-but-string fields to str
-    df["contact_number"] = df["contact_number"].astype(str)
-    df["middle_name"] = df["middle_name"].astype(str)
-    df["postpaid_plan_history"] = df["postpaid_plan_history"].astype(str)
-    df["data_usage_patterns"] = df["data_usage_patterns"].astype(str)
-
-    applications = []
-    for row in df.to_dict(orient="records"):
-        try:
-            app_data = Application(**row)
-            applications.append(app_data)
-        except Exception as e:
-            print(f"Validation error: {e}")
-    return applications

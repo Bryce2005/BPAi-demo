@@ -9,6 +9,8 @@ from ..models import Application
 from sqlalchemy.orm import Session
 import os
 import sys
+import json
+import tempfile
 
 from ..services.loan_screening import (
     load_and_preprocess_data, 
@@ -32,7 +34,7 @@ _X_train = None
 _model_initialized = False
 
 class MLAnalysisRequest(BaseModel):
-    application_id: int
+    application_id: str
 
 class LimeFeature(BaseModel):
     feature: str
@@ -49,85 +51,96 @@ class MLAnalysisResponse(BaseModel):
     aiSummary: str
 
 def initialize_model():
-    """Initialize the ML model and load data"""
+    """Initialize the ML model and load data from JSON"""
     global _model, _df, _X_train, _model_initialized
     
     if _model_initialized:
         return
     
-    try:
-        print("Loading and preprocessing data...")
-        _df = load_and_preprocess_data("outdir/synthetic_data.csv")
-        
-        print("Splitting data...")
-        _X_train, X_test, y_train, y_test = ls_train_test_split(_df)
-        
-        print("Training model...")
-        _model = train_ordinal_gbm(_X_train, y_train)
-        
-        print("Model initialized successfully!")
-        _model_initialized = True
-        
-    except Exception as e:
-        print(f"Error initializing model: {e}")
-        _model_initialized = False
-        raise
+    json_filepath = "application_data.json"
 
+    _df = load_and_preprocess_data(json_filepath)
+        
+    print("Splitting data...")
+    _X_train, X_test, y_train, y_test = ls_train_test_split(_df)
+    
+    print("Training model...")
+    _model = train_ordinal_gbm(_X_train, y_train)
+    
+    print("Model initialized successfully!")
+    _model_initialized = True
+        
 def get_model():
     """Dependency to ensure model is initialized"""
     if not _model_initialized:
         initialize_model()
     return _model, _df, _X_train
 
-def get_application_from_db(application_id: int, db: Session) -> Optional[Dict]:
-    """Get application data from database"""
-    app = db.query(Application).filter(Application.application_id == application_id).first()
-    if not app:
-        return None
-    
-    # Convert SQLAlchemy object to dict
-    app_dict = {}
-    for column in app.__table__.columns:
-        app_dict[column.name] = getattr(app, column.name)
-    
-    return app_dict
+import json
 
-def create_features_from_db_application(app_data: Dict) -> pd.Series:
-    """Convert database application to feature vector for ML model"""
+
+def get_application_from_db(application_id: str, db=None):
+    # Replace this with however you're storing/reading applications
+    with open("application_data.json") as f:
+        data = json.load(f)
+
+    applications = data.get("applicationDataX", [])
+    for app in applications:
+        if app.get("application_id") == application_id:
+            return app  # returns a dict
+
+    return None
+
+def convert_db_to_json_format(app_data: Dict) -> Dict:
+    """Convert database application format to JSON format expected by loan_screening_json"""
     
-    # Map database fields to ML model features
-    # You'll need to adjust this mapping based on your actual database schema
-    feature_mapping = {
-        'credit_limit': app_data.get('credit_limit', 0),
-        'gross_monthly_income': app_data.get('gross_monthly_income', 0),
-        'bpi_loans_taken': app_data.get('bpi_loans_taken', 0),
-        'bpi_successful_loans': app_data.get('bpi_successful_loans', 0),
-        'gcash_avg_monthly_deposits': app_data.get('gcash_avg_monthly_deposits', 0),
-        'data_usage_patterns': app_data.get('data_usage_patterns', 0),
-        'loan_amount_requested_php': app_data.get('loan_amount_requested_php', 0),
-        'loan_tenor_months': app_data.get('loan_tenor_months', 12),
-        'civil_status': app_data.get('civil_status', 'Single'),
-        'employment_type': app_data.get('employment_type', 'Employed'),
-        'dependents': app_data.get('dependents', 0),
-        'years_of_stay': app_data.get('years_of_stay', 1),
-        'residence_type': app_data.get('residence_type', 'Owned'),
-        'address_city': app_data.get('address_city', 'Manila'),
-        'address_province': app_data.get('address_province', 'Metro Manila'),
-        'loan_purpose': app_data.get('loan_purpose', 'Personal'),
-        'source_of_funds': app_data.get('source_of_funds', 'Salary'),
-        'bpi_avg_monthly_deposits': app_data.get('bpi_avg_monthly_deposits', 0),
-        'bpi_avg_monthly_withdrawals': app_data.get('bpi_avg_monthly_withdrawals', 0),
-        'bpi_frequency_of_transactions': app_data.get('bpi_frequency_of_transactions', 0),
-        'bpi_emi_payment': app_data.get('bpi_emi_payment', 0),
-        'gcash_avg_monthly_withdrawals': app_data.get('gcash_avg_monthly_withdrawals', 0),
-        'gcash_frequency_of_transactions': app_data.get('gcash_frequency_of_transactions', 0),
-        'postpaid_plan_history': app_data.get('postpaid_plan_history', 0),
-        'prepaid_load_frequency': app_data.get('prepaid_load_frequency', 0),
+    return {
+        "id": app_data.get('id', 1),
+        "application_id": app_data.get('application_id', 'APP-DEFAULT'),
+        "first_name": app_data.get('first_name', ''),
+        "last_name": app_data.get('last_name', ''),
+        "email_address": app_data.get('email_address', ''),
+        "contact_number": app_data.get('contact_number', ''),
+        "address_city": app_data.get('address_city', 'Manila'),
+        "address_province": app_data.get('address_province', 'Metro Manila'),
+        "civil_status": app_data.get('civil_status', 'Single'),
+        "dependents": app_data.get('dependents', 0),
+        "gross_monthly_income": app_data.get('gross_monthly_income', 50000),
+        "employment_type": app_data.get('employment_type', 'Regular'),
+        "years_of_stay": app_data.get('years_of_stay', 1),
+        "loan_amount_requested_php": app_data.get('loan_amount_requested_php', 100000),
+        "loan_tenor_months": app_data.get('loan_tenor_months', 12),
+        "loan_purpose": app_data.get('loan_purpose', 'Personal'),
+        "credit_limit": app_data.get('credit_limit', 0),
+        "bpi_loans_taken": app_data.get('bpi_loans_taken', 0),
+        "bpi_successful_loans": app_data.get('bpi_successful_loans', 0),
+        "bpi_avg_monthly_deposits": app_data.get('bpi_avg_monthly_deposits', 0),
+        "gcash_avg_monthly_deposits": app_data.get('gcash_avg_monthly_deposits', 0),
+        "data_usage_patterns": app_data.get('data_usage_patterns', 0.5),
+        "residence_type": app_data.get('residence_type', 'Owned'),
+        "source_of_funds": app_data.get('source_of_funds', 'Salary'),
+        "bpi_avg_monthly_withdrawals": app_data.get('bpi_avg_monthly_withdrawals', 0),
+        "bpi_frequency_of_transactions": app_data.get('bpi_frequency_of_transactions', 0),
+        "bpi_emi_payment": app_data.get('bpi_emi_payment', 0),
+        "gcash_avg_monthly_withdrawals": app_data.get('gcash_avg_monthly_withdrawals', 0),
+        "gcash_frequency_of_transactions": app_data.get('gcash_frequency_of_transactions', 0),
+        "postpaid_plan_history": app_data.get('postpaid_plan_history', 0),
+        "prepaid_load_frequency": app_data.get('prepaid_load_frequency', 0),
+        "processed_at": app_data.get('created_at', '2024-01-01T00:00:00Z')
+    }
+
+def create_temp_json_for_analysis(app_data: Dict) -> str:
+    """Create a temporary JSON file for single application analysis"""
+    json_data = {
+        "applicationDataX": [convert_db_to_json_format(app_data)]
     }
     
-    return pd.Series(feature_mapping)
+    # Create temporary file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump(json_data, f, indent=2)
+        return f.name
 
-def generate_fallback_analysis(application_id: int, app_data: Dict) -> MLAnalysisResponse:
+def generate_fallback_analysis(application_id: str, app_data: Dict) -> MLAnalysisResponse:
     """Generate fallback analysis when ML model is not available"""
     
     # Use application data to create a more realistic analysis
@@ -139,23 +152,23 @@ def generate_fallback_analysis(application_id: int, app_data: Dict) -> MLAnalysi
     debt_to_income = loan_amount / max(income, 1)
     
     if debt_to_income > 10:
-        risk_category = "Loss"
+        risk_category = "Default"
         risk_score = 0.9
     elif debt_to_income > 5:
-        risk_category = "Doubtful" 
+        risk_category = "Critical" 
         risk_score = 0.7
     elif debt_to_income > 3:
-        risk_category = "Substandard"
+        risk_category = "Risky"
         risk_score = 0.5
     elif debt_to_income > 2:
-        risk_category = "Especially Mentioned (EM)"
+        risk_category = "Unstable"
         risk_score = 0.3
     else:
-        risk_category = "Pass"
+        risk_category = "Secure"
         risk_score = 0.1
     
     # Generate probabilities
-    categories = ["Pass", "Especially Mentioned (EM)", "Substandard", "Doubtful", "Loss"]
+    categories = ["Secure", "Unstable", "Risky", "Critical", "Default"]
     probabilities = {cat: 0.1 for cat in categories}
     probabilities[risk_category] = 0.6
     
@@ -217,7 +230,7 @@ async def analyze_application(
     request: MLAnalysisRequest,
     db: Session = Depends(get_db)
 ):
-    """Analyze loan application using ML model"""
+    """Analyze loan application using JSON-based ML model"""
     
     try:
         # Get application from database
@@ -229,82 +242,96 @@ async def analyze_application(
         try:
             model, df, X_train = get_model()
             
-            # Convert database application to ML features
-            feature_vector = create_features_from_db_application(app_data)
+            # Create temporary JSON file for this application
+            temp_json_file = create_temp_json_for_analysis(app_data)
             
-            # Ensure feature vector matches training data structure
-            if X_train is not None:
-                # Align features with training data
-                aligned_features = pd.Series(0, index=X_train.columns)
-                for feature in aligned_features.index:
-                    if feature in feature_vector.index:
-                        aligned_features[feature] = feature_vector[feature]
+            try:
+                # Load and preprocess the single application
+                temp_df = load_and_preprocess_data(temp_json_file)
                 
-                # Apply same preprocessing as training data
-                # Handle categorical encoding
-                for col, encoder in ENCODER_STORE.items():
-                    if col in aligned_features.index:
-                        try:
-                            aligned_features[col] = encoder.transform([str(aligned_features[col])])[0]
-                        except ValueError:
-                            # Unknown category, use most common category
-                            aligned_features[col] = encoder.transform([encoder.classes_[0]])[0]
+                # Extract features for the application
+                app_features = temp_df.drop(columns=['risk_index_score', 'risk_category'] + 
+                                          [col for col in temp_df.columns if col.startswith(('id', 'application_id', 'first_name', 'last_name', 'email', 'contact', 'processed_at'))])
+                
+                # Align features with training data
+                aligned_features = pd.DataFrame(0, index=[0], columns=X_train.columns)
+                for col in aligned_features.columns:
+                    if col in app_features.columns:
+                        aligned_features[col] = app_features[col].iloc[0]
                 
                 # Make prediction
-                features_array = aligned_features.values.reshape(1, -1)
-                prediction = model.predict(features_array)[0]
-                probabilities = model.predict_proba(features_array)[0]
-                
-                risk_category = RISK_CATEGORY_MAP[prediction]
-                risk_score = 1 - probabilities[prediction]
+                risk_category, probabilities = predict_loan_application(model, aligned_features)
+                risk_score = 1 - max(probabilities)  # Convert to risk score
                 
                 # Convert probabilities to dict
                 prob_dict = {}
                 for i, category in enumerate(RISK_CATEGORY_MAP.values()):
                     prob_dict[category] = float(probabilities[i])
                 
-                # Generate simplified LIME-style features
-                important_features = ['gross_monthly_income', 'loan_amount_requested_php', 'credit_limit']
+                # Generate LIME explanation
+                lime_explanation, updated_df = generate_lime_explanation(
+                    temp_df, request.application_id, model, aligned_features, X_train
+                )
+                
+                # Extract LIME features
+                predicted_numeric_class = [k for k, v in RISK_CATEGORY_MAP.items() if v == risk_category][0]
+                lime_list = lime_explanation.as_list(label=predicted_numeric_class)
+                
                 lime_features = []
+                for name, weight in lime_list[:10]:  # Top 10 features
+                    cleaned_name = name.split(' ')[0] if ' ' in name else name
+                    description = f"{'Reduces' if weight > 0 else 'Increases'} risk by {abs(weight):.3f}"
+                    
+                    lime_features.append(LimeFeature(
+                        feature=cleaned_name,
+                        impact=float(weight),
+                        description=description
+                    ))
                 
-                for feature in important_features:
-                    if feature in aligned_features.index:
-                        # Simple impact calculation based on feature value
-                        value = aligned_features[feature]
-                        impact = np.random.normal(0, 0.1)  # Placeholder impact
-                        
-                        lime_features.append(LimeFeature(
-                            feature=feature,
-                            impact=float(impact),
-                            description=f"{feature.replace('_', ' ').title()}: {value}"
-                        ))
+                # Generate 5C analysis
+                five_c_scores, _ = generate_aggregated_lime(
+                    temp_df, request.application_id, lime_explanation, risk_category
+                )
                 
-                # Simple 5C analysis
-                five_c = {
-                    "Character": float(np.random.normal(0, 0.1)),
-                    "Capacity": float(np.random.normal(0, 0.15)),
-                    "Capital": float(np.random.normal(0, 0.1)),
-                    "Collateral": float(np.random.normal(0, 0.1)),
-                    "Conditions": float(np.random.normal(0, 0.05))
-                }
+                # Generate improvements
+                improvements = []
+                income = app_data.get('gross_monthly_income', 50000)
+                loan_amount = app_data.get('loan_amount_requested_php', 100000)
+                dti = loan_amount / (income * 12) if income else 1
                 
-                improvements = [
-                    "Consider improving debt-to-income ratio",
-                    "Build stronger credit history through consistent payments",
-                    "Increase liquid assets and emergency funds"
-                ]
+                if dti > 0.4:
+                    improvements.append("**Capacity:** High debt-to-income ratio detected. Consider reducing loan amount or increasing income sources.")
                 
-                ai_summary = f"ML analysis indicates {risk_category.lower()} risk level with {risk_score:.1%} risk score."
+                if app_data.get('bpi_successful_loans', 0) < 2:
+                    improvements.append("**Character:** Building a stronger repayment history will improve your credit profile.")
+                
+                if app_data.get('credit_limit', 0) < loan_amount * 0.5:
+                    improvements.append("**Capital:** Increasing your credit limit through consistent banking relationships may help.")
+                
+                if not improvements:
+                    improvements.append("Your application shows a strong financial profile. Continue maintaining good financial habits.")
+                
+                # Generate AI summary
+                ai_summary = (
+                    f"ML analysis classifies this application as '{risk_category}' with a risk score of {risk_score:.1%}. "
+                    f"Key factors include income stability (₱{income:,.2f}/month), loan amount (₱{loan_amount:,.2f}), "
+                    f"and digital financial behavior patterns. The model considers both traditional and alternative data sources."
+                )
                 
                 return MLAnalysisResponse(
                     riskCategory=risk_category,
                     riskScore=float(risk_score),
                     probabilities=prob_dict,
                     limeFeatures=lime_features,
-                    fiveCAnalysis=five_c,
+                    fiveCAnalysis={k: round(float(v), 3) for k, v in five_c_scores.items()},
                     improvements=improvements,
                     aiSummary=ai_summary
                 )
+                
+            finally:
+                # Clean up temporary file
+                if os.path.exists(temp_json_file):
+                    os.unlink(temp_json_file)
                 
         except Exception as e:
             print(f"ML model error: {e}")
@@ -327,7 +354,8 @@ async def ml_health_check():
         "status": "healthy",
         "model_initialized": _model_initialized,
         "model_available": _model is not None,
-        "data_available": _df is not None
+        "data_available": _df is not None,
+        "model_type": "JSON-based loan screening"
     }
 
 @router.post("/initialize")
@@ -335,6 +363,44 @@ async def initialize_ml_model():
     """Manually initialize ML model"""
     try:
         initialize_model()
-        return {"message": "Model initialized successfully", "status": "success"}
+        return {"message": "JSON-based model initialized successfully", "status": "success"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to initialize model: {str(e)}")
+
+@router.post("/retrain")
+async def retrain_model():
+    """Retrain the model with latest data"""
+    global _model_initialized
+    try:
+        _model_initialized = False  # Reset state
+        initialize_model()
+        return {"message": "Model retrained successfully", "status": "success"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrain model: {str(e)}")
+
+# Additional endpoint for bulk analysis
+@router.post("/bulk-analysis")
+async def bulk_analyze_applications(
+    application_ids: List[str],
+    db: Session = Depends(get_db)
+):
+    """Analyze multiple applications at once"""
+    results = []
+    
+    for app_id in application_ids:
+        try:
+            request = MLAnalysisRequest(application_id=app_id)
+            result = await analyze_application(request, db)
+            results.append({
+                "application_id": app_id,
+                "analysis": result,
+                "status": "success"
+            })
+        except Exception as e:
+            results.append({
+                "application_id": app_id,
+                "error": str(e),
+                "status": "failed"
+            })
+    
+    return {"results": results}

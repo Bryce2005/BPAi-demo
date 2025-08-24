@@ -58,7 +58,7 @@ const OverviewPage = ({application}: any) => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">Summary of Application</h2>
-              <p className="text-gray-600">Application ID: {application.id}</p>
+              <p className="text-gray-600">Application ID: {application.applicationId}</p>
             </div>
             <button 
               onClick={() => setIsEmailModalOpen(true)}

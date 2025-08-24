@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
-  BarChart3,
   TrendingUp, 
   Users, 
   AlertTriangle,
   Activity,
   Crown,
-  MapPin,
   Clock,
   UsersRound
 } from 'lucide-react';
@@ -14,8 +12,6 @@ import {
 interface TeamProgressProps {}
 
 const TeamProgress: React.FC<TeamProgressProps> = () => {
-  const [dateRange, setDateRange] = useState('mm/dd/yyyy');
-
   // Mock data - replace with real data
   const teamData = {
     totalOfficers: 8,
@@ -367,7 +363,7 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
                         { name: 'Officer X', status: 'available', load: 85, cases: 5 },
                         { name: 'Officer Y', status: 'available', load: 70, cases: 3 },
                         { name: 'Officer Z', status: 'break', load: 45, cases: 2 },
-                      ].map((officer, index) => (
+                      ].map((officer, ) => (
                         <div key={officer.name} className="flex items-center justify-between py-2">
                           <div className="flex items-center gap-3">
                             <div className={`w-3 h-3 rounded-full ${
