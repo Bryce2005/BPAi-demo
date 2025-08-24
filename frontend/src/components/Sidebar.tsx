@@ -51,7 +51,7 @@ const Sidebar = () => {
                   <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
                 </svg>
               </div>
-              <span className="font-medium">Loan Preprocess</span>
+              <span className="font-medium">Preprocessing</span>
             </div>
             <div className={`transform transition-transform duration-200 ${expandedSections.aiassist ? 'rotate-90' : ''}`}>
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -102,14 +102,14 @@ const Sidebar = () => {
                 className={`block py-2 px-3 rounded-lg text-sm transition-colors duration-200
                 ${isActiveLink('/team/officer-x') ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-600 hover:bg-gray-100'}`}
               >
-                Officer X (You)
+                Camille Reyes (You)
               </Link>
               <Link
                 to="/team/officer-y"
                 className={`block py-2 px-3 rounded-lg text-sm transition-colors duration-200
                 ${isActiveLink('/team/officer-y') ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-600 hover:bg-gray-100'}`}
               >
-                Officer Y
+                Gabriel Lorenzo
               </Link>
             </div>
           )}
@@ -162,18 +162,15 @@ const Sidebar = () => {
       {/* Bottom section */}
       <div className="absolute bottom-4 left-4 right-4">
         <div className="space-y-2">
-          <button className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm">
-            📖 Help Guide
-          </button>
-          <button className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm">
-            📋 Internal Docs
-          </button>
+          <a href="https://drive.google.com/file/d/1UH8zI8Xwbv6ZDUID0aLGSSgHvLeq_2TE/view?usp=sharing" target="_blank" className="mt-4 flex p-2 rounded-lg text-left px-3 py-2 text-gray-600 hover:bg-gray-100 text-l">
+          📋 Internal Docs
+          </a>
         </div>
         <div className="mt-4 flex items-center p-2 bg-red-50 rounded-lg">
           <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center mr-2">
             <span className="text-white font-bold text-xs">LO</span>
           </div>
-          <span className="text-sm text-gray-700 font-medium">Loan Officer</span>
+          <span className="text-sm text-gray-700 font-medium">Camille Reyes</span>
         </div>
       </div>
     </div>

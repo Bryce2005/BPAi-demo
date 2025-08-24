@@ -288,18 +288,24 @@ async def send_test_email(test_email: EmailStr):
                 detail="Email configuration incomplete"
             )
         
-        test_subject = "Test Email - Configuration Verification"
-        test_content = """Dear User,
+        test_subject = "Application Update – Invalid ID and Payslip Submission"
 
-This is a test email to verify that your email configuration is working correctly.
+        test_content = """Dear Applicant,
 
-If you receive this email, your SMTP settings are properly configured and ready to send application notifications.
+We have reviewed the documents you submitted with your application. Unfortunately, we found that the ID picture and payslip provided are invalid or do not meet the required standards.
+
+To proceed with your application, please recheck your documents and resubmit the application form with valid copies of the following:
+- A clear and valid ID picture
+- A valid payslip
+
+Your prompt attention to this matter will help us continue processing your application without further delay.
 
 Best regards,
 BPI Application Review Team
 
 ---
-This is an automated test message."""
+This is an automated message. Please do not reply directly to this email."""
+
 
         result = email_service.send_single_email(test_email, test_subject, test_content)
         

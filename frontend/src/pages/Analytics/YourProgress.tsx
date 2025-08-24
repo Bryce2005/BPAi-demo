@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { TrendingUp, Clock, Target, CheckCircle, AlertCircle, Eye, Calendar } from 'lucide-react';
+import { TrendingUp, Clock, Target, CheckCircle, AlertCircle, Eye, CircleUser} from 'lucide-react';
 
 const YourProgress = () => {
   const [selectedDate, setSelectedDate] = useState('08/23/2025');
@@ -10,7 +10,6 @@ const YourProgress = () => {
     { id: 'APP-2024-001', status: 'Approved', riskScore: 65, rationale: 'Education', client: 'Olivia Santiago', date: '8/26/2024' },
     { id: 'APP-2024-002', status: 'Approved', riskScore: 35, rationale: 'Personal Expenses', client: 'Paul Reyes', date: '8/27/2024' },
     { id: 'APP-2024-003', status: 'Rejected', riskScore: 95, rationale: 'Business Start-up', client: 'Quincy Domingo', date: '8/28/2024' },
-    { id: 'APP-2024-004', status: 'Pending', riskScore: 68, rationale: 'Debt Consolidation', client: 'Rachel Garcia', date: '8/30/2024' },
     { id: 'APP-2024-005', status: 'Approved', riskScore: 15, rationale: 'Vacation', client: 'Samantha Ramos', date: '8/30/2024' },
     { id: 'APP-2024-006', status: 'In Review', riskScore: 85, rationale: 'Medical Emergency', client: 'Timothy Mendoza', date: '8/31/2024' },
     { id: 'APP-2024-007', status: 'In Review', riskScore: 75, rationale: 'Gadget Purchase', client: 'Ursula Castro', date: '9/1/2024' },
@@ -21,7 +20,6 @@ const YourProgress = () => {
   const totalApplications = applications.length;
   const todayCases = 8;
   const approvedCount = applications.filter(app => app.status === 'Approved').length;
-  const pendingCount = applications.filter(app => app.status === 'Pending').length;
   const inReviewCount = applications.filter(app => app.status === 'In Review').length;
   const rejectedCount = applications.filter(app => app.status === 'Rejected').length;
   
@@ -32,7 +30,6 @@ const YourProgress = () => {
   // Status distribution data
   const statusData = [
     { name: 'Approved', value: approvedCount, percentage: Math.round((approvedCount / totalApplications) * 100), color: '#10b981' },
-    { name: 'Pending', value: pendingCount, percentage: Math.round((pendingCount / totalApplications) * 100), color: '#3b82f6' },
     { name: 'In Review', value: inReviewCount, percentage: Math.round((inReviewCount / totalApplications) * 100), color: '#f59e0b' },
     { name: 'Rejected', value: rejectedCount, percentage: Math.round((rejectedCount / totalApplications) * 100), color: '#ef4444' }
   ];
@@ -64,32 +61,15 @@ const YourProgress = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 bg-red-500 rounded"></div>
-          <h1 className="text-xl font-semibold text-gray-800">Your Progress</h1>
+    <div className="min-h-screen bg-gray-50">
+       <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="w-6 h-6 mr-3"><CircleUser /></div>
+            <h1 className="text-xl font-semibold text-gray-800">Your Progress</h1>
+          </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <select className="border border-gray-300 rounded px-3 py-2 text-sm">
-            <option>Status</option>
-            <option>All</option>
-            <option>Approved</option>
-            <option>Pending</option>
-          </select>
-          <input 
-            type="text" 
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 text-sm"
-            placeholder="mm/dd/yyyy"
-          />
-          <button className="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600">
-            Switch to Applications
-          </button>
-        </div>
-      </div>
+      </header>
 
       {/* Top Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

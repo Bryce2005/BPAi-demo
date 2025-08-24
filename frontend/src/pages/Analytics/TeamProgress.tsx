@@ -7,7 +7,8 @@ import {
   Activity,
   Crown,
   MapPin,
-  Clock
+  Clock,
+  UsersRound
 } from 'lucide-react';
 
 interface TeamProgressProps {}
@@ -93,40 +94,16 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-red-600 rounded flex items-center justify-center">
-              <BarChart3 className="w-3 h-3 text-white" />
-            </div>
-            <h1 className="text-lg font-semibold text-gray-900">Team Progress</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <select 
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              defaultValue="all"
-            >
-              <option value="all">All Officers</option>
-              <option value="active">Active Only</option>
-              <option value="region">By Region</option>
-            </select>
-            <input
-              type="text"
-              placeholder="mm/dd/yyyy"
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value)}
-            />
-            <button className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Switch to Applications
-            </button>
+          <div className="flex items-center">
+            <div className="w-6 h-6 mr-3"><UsersRound /></div>
+            <h1 className="text-xl font-semibold text-gray-900">Team Progress</h1>
           </div>
         </div>
       </div>
 
-      <div className="p-6 max-w-7xl mx-auto">
-        <div className="space-y-6">
+
           {/* Team Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <StatCard
               title="Team Completion"
               value={`${teamData.teamCompletion}%`}
@@ -175,12 +152,7 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
                   {[
                     { name: 'Officer X', cases: 45, accuracy: 96, status: 'top', online: true },
                     { name: 'Officer Y', cases: 38, accuracy: 94, status: 'good', online: true },
-                    { name: 'You', cases: 38, accuracy: 94, status: 'current', online: true },
-                    { name: 'Officer Z', cases: 32, accuracy: 91, status: 'average', online: true },
-                    { name: 'Officer W', cases: 28, accuracy: 89, status: 'average', online: false },
-                    { name: 'Officer V', cases: 25, accuracy: 87, status: 'needs-improvement', online: true },
-                    { name: 'Officer U', cases: 22, accuracy: 85, status: 'needs-improvement', online: false },
-                    { name: 'Officer T', cases: 18, accuracy: 82, status: 'needs-improvement', online: true },
+                    { name: 'Officer Z', cases: 38, accuracy: 94, status: 'current', online: true },
                   ].map((officer, index) => (
                     <div key={officer.name} className={`flex items-center justify-between p-3 rounded-lg ${
                       officer.status === 'current' ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'
@@ -322,14 +294,13 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
               <div className="p-6">
                 <div className="space-y-4">
                   {[
+                    { time: '15:30', officer: 'Officer X', action: 'Completed low-risk case #4521', status: 'success' },
+                    { time: '15:20', officer: 'Officer Z', action: 'Processing case #4518', status: 'active' },
+                    { time: '15:10', officer: 'Officer X', action: 'Completed high-risk case #4521', status: 'success' },
+                    { time: '14:50', officer: 'Officer Y', action: 'Processing case #4518', status: 'active' },
                     { time: '14:30', officer: 'Officer X', action: 'Completed high-risk case #4521', status: 'success' },
-                    { time: '14:15', officer: 'Officer Y', action: 'Escalated case #4519 to supervisor', status: 'warning' },
-                    { time: '14:02', officer: 'You', action: 'Processing case #4518', status: 'active' },
-                    { time: '13:45', officer: 'Officer Z', action: 'Started break (15 mins)', status: 'break' },
-                    // { time: '13:30', officer: 'Officer W', action: 'Completed case #4515', status: 'success' },
-                    // { time: '13:15', officer: 'Officer V', action: 'Logged in to system', status: 'info' },
-                    // { time: '12:58', officer: 'Officer U', action: 'Submitted 5 cases for review', status: 'success' },
-                    // { time: '12:42', officer: 'Officer T', action: 'Updated profile information', status: 'info' }
+                    { time: '14:02', officer: 'Officer Y', action: 'Processing case #4518', status: 'active' },
+                    { time: '13:45', officer: 'Officer Z', action: 'Completed medium-risk case', status: 'active' },
                   ].map((activity, index) => (
                     <div key={index} className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-12 text-xs text-gray-500 font-medium mt-1">
@@ -395,10 +366,7 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
                       {[
                         { name: 'Officer X', status: 'available', load: 85, cases: 5 },
                         { name: 'Officer Y', status: 'available', load: 70, cases: 3 },
-                        { name: 'You', status: 'busy', load: 90, cases: 4 },
-                        { name: 'Officer Z', status: 'break', load: 0, cases: 0 },
-                        { name: 'Officer W', status: 'offline', load: 0, cases: 0 },
-                        { name: 'Officer V', status: 'available', load: 45, cases: 2 }
+                        { name: 'Officer Z', status: 'break', load: 45, cases: 2 },
                       ].map((officer, index) => (
                         <div key={officer.name} className="flex items-center justify-between py-2">
                           <div className="flex items-center gap-3">
@@ -437,7 +405,7 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
             </div>
           </div>
 
-          {/* Quick Actions */}
+          {/* Quick Actions
           <div className="bg-white rounded-lg border border-gray-200">
             <div className="p-6 border-b border-gray-100">
               <h3 className="text-lg font-semibold text-gray-900">Quick Team Actions</h3>
@@ -467,10 +435,9 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
-      </div>
-    </div>
+
   );
 };
 
