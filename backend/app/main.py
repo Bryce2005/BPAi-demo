@@ -10,7 +10,7 @@ from io import StringIO
 import os
 from .database import engine
 from . import models
-from .routers import upload, dashboard, email, ml_analysis  # Add ml_analysis import
+from .routers import upload, dashboard, email, ml_analysis, chatbot
 from .models import Application
 import numpy as np
 
@@ -31,7 +31,8 @@ app.add_middleware(
 app.include_router(upload.router)
 app.include_router(dashboard.router)
 app.include_router(email.router)
-app.include_router(ml_analysis.router)  # Add ML analysis router
+app.include_router(ml_analysis.router)
+app.include_router(chatbot.router)
 
 # Create uploads directory
 os.makedirs("uploads", exist_ok=True)

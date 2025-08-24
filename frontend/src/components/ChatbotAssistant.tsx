@@ -119,27 +119,27 @@
 //     }
 //   ];
 
-// //     const scrollToBottom = () => {
-// //         if (messagesEndRef.current) {
-// //             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-// //         }
-// //     };
-
-// //   useEffect(() => {
-// //     scrollToBottom();
-// //   }, [messages]);
-
-//     const getStatusColor = (status: 'Critical' | 'Default' | 'Risky' | 'Secure' | string) => {
-//     switch (status) {
-//         case 'Critical': return 'text-red-600 bg-red-100';
-//         case 'Default': return 'text-red-600 bg-red-100';
-//         case 'Risky': return 'text-yellow-600 bg-yellow-100';
-//         case 'Secure': return 'text-green-600 bg-green-100';
-//         default: return 'text-gray-600 bg-gray-100';
+//   const scrollToBottom = () => {
+//     if (messagesEndRef.current) {
+//       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
 //     }
-//     };
+//   };
 
-//   const processMessage = (message: string) => {
+//   useEffect(() => {
+//     scrollToBottom();
+//   }, [messages]);
+
+//   const getStatusColor = (status) => {
+//     switch (status) {
+//       case 'Critical': return 'text-red-600 bg-red-100';
+//       case 'Default': return 'text-red-600 bg-red-100';
+//       case 'Risky': return 'text-yellow-600 bg-yellow-100';
+//       case 'Secure': return 'text-green-600 bg-green-100';
+//       default: return 'text-gray-600 bg-gray-100';
+//     }
+//   };
+
+//   const processMessage = (message) => {
 //     const lowerMessage = message.toLowerCase();
     
 //     // Risk scoring model information
@@ -163,10 +163,10 @@
 
 //     // Status information
 //     if (lowerMessage.includes('status') || lowerMessage.includes('secure') || lowerMessage.includes('critical') || lowerMessage.includes('unstable')) {
-//       const statusCounts = dashboardData.reduce((acc: { [key: string]: number }, app) => {
+//       const statusCounts = dashboardData.reduce((acc, app) => {
 //         acc[app.status] = (acc[app.status] || 0) + 1;
 //         return acc;
-//     }, {});
+//       }, {});
 
 //       return `**Current Status Overview:**
 // • Critical: ${statusCounts.Critical || 0} applications (Immediate action required)
@@ -233,10 +233,10 @@
 //     if (lowerMessage.includes('stats') || lowerMessage.includes('summary') || lowerMessage.includes('overview')) {
 //       const totalApps = dashboardData.length;
 //       const avgRisk = Math.round(dashboardData.reduce((sum, app) => sum + app.riskScore, 0) / totalApps);
-//       const statusCounts = dashboardData.reduce((acc: { [key: string]: number }, app) => {
+//       const statusCounts = dashboardData.reduce((acc, app) => {
 //         acc[app.status] = (acc[app.status] || 0) + 1;
-//       return acc;
-//     }, {});
+//         return acc;
+//       }, {});
 
 //       return `**Dashboard Statistics:**
 
@@ -311,7 +311,7 @@
 //     }
 //   };
 
-//   const formatMessageContent = (content: any) => {
+//   const formatMessageContent = (content) => {
 //     // Convert markdown-style formatting to HTML
 //     return content
 //       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -411,144 +411,84 @@
 //       )}
 
 //       {/* Toggle Button */}
-//       <button
-//         onClick={() => setIsOpen(!isOpen)}
-//         className="w-14 h-14 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition-all duration-300 flex items-center justify-center relative"
-//       >
-//         {isOpen ? (
-//           <X size={24} />
-//         ) : (
-//           <>
-//             <MessageCircle size={24} />
-//             <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-//           </>
-//         )}
-//       </button>
+//       {!isOpen && (
+//         <button
+//           onClick={() => setIsOpen(true)}
+//           className="w-14 h-14 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition-all duration-300 flex items-center justify-center relative"
+//         >
+//           <MessageCircle size={24} />
+//           <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+//         </button>
+//       )}
 //     </div>
 //   );
 // };
 
 // export default ChatbotAssistant;
-import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, FileText, BarChart3, User, Phone, MapPin } from 'lucide-react';
 
-const ChatbotAssistant = () => {
+import React, { useState, useRef, useEffect } from 'react';
+import { MessageCircle, X, Send, BarChart3, AlertCircle, Loader } from 'lucide-react';
+
+// Types
+interface ChatMessage {
+  id: number;
+  type: 'user' | 'bot';
+  content: string;
+  timestamp: Date;
+}
+
+interface ChatRequest {
+  message: string;
+  conversation_history: ChatMessage[];
+}
+
+interface ChatResponse {
+  response: string;
+  timestamp: string;
+}
+
+interface ApiError {
+  detail: string;
+}
+
+const ChatbotAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 1,
       type: 'bot',
-      content: "Hello! I'm your BPAi dashboard assistant. I can help you understand your risk scoring data, application statuses, and explain how our risk assessment model works. What would you like to know?",
+      content: "Hello! I'm your BPAi dashboard assistant powered by Gemini AI. I can help you understand your risk scoring data, application statuses, and explain how our risk assessment model works. What would you like to know?",
       timestamp: new Date()
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Updated dashboard data to match your actual interface
-  const dashboardData = [
-    {
-      id: 'APP-2024-001',
-      status: 'Risky',
-      riskScore: 65,
-      rationale: 'Education',
-      client: 'Olivia Santiago',
-      phone: '09087654321',
-      address: 'Pasig City, Metro Manila',
-      date: '8/26/2024'
-    },
-    {
-      id: 'APP-2024-002',
-      status: 'Secure',
-      riskScore: 35,
-      rationale: 'Personal Expenses',
-      client: 'Paul Reyes',
-      phone: '09076543210',
-      address: 'Makati City, Metro Manila',
-      date: '8/27/2024'
-    },
-    {
-      id: 'APP-2024-003',
-      status: 'Default',
-      riskScore: 95,
-      rationale: 'Business Start-up',
-      client: 'Quincy Domingo',
-      phone: '09065432109',
-      address: 'Tagaytay City, Cavite',
-      date: '8/28/2024'
-    },
-    {
-      id: 'APP-2024-004',
-      status: 'Risky',
-      riskScore: 68,
-      rationale: 'Debt Consolidation',
-      client: 'Rachel Garcia',
-      phone: '09054321098',
-      address: 'Cebu City, Cebu',
-      date: '8/30/2024'
-    },
-    {
-      id: 'APP-2024-005',
-      status: 'Secure',
-      riskScore: 15,
-      rationale: 'Vacation',
-      client: 'Samantha Ramos',
-      phone: '09043210987',
-      address: 'Davao City, Davao del Sur',
-      date: '8/30/2024'
-    },
-    {
-      id: 'APP-2024-006',
-      status: 'Critical',
-      riskScore: 85,
-      rationale: 'Medical Emergency',
-      client: 'Timothy Mendoza',
-      phone: '09032109876',
-      address: 'Quezon City, Metro Manila',
-      date: '8/31/2024'
-    },
-    {
-      id: 'APP-2024-007',
-      status: 'Risky',
-      riskScore: 75,
-      rationale: 'Gadget Purchase',
-      client: 'Ursula Castro',
-      phone: '09021098765',
-      address: 'Caloocan City, Metro Manila',
-      date: '9/1/2024'
-    },
-    {
-      id: 'APP-2024-008',
-      status: 'Secure',
-      riskScore: 10,
-      rationale: 'Car Purchase',
-      client: 'Victor Magno',
-      phone: '09010987654',
-      address: 'Makati City, Metro Manila',
-      date: '9/2/2024'
-    },
-    {
-      id: 'APP-2024-009',
-      status: 'Critical',
-      riskScore: 82,
-      rationale: 'Home Improvement',
-      client: 'Wendy Navarro',
-      phone: '09098765432',
-      address: 'Pasay City, Metro Manila',
-      date: '9/3/2024'
-    },
-    {
-      id: 'APP-2024-010',
-      status: 'Secure',
-      riskScore: 30,
-      rationale: 'Emergency Fund',
-      client: 'Xavier Pascual',
-      phone: '09087654321',
-      address: 'Mandaluyong City, Metro Manila',
-      date: '9/4/2024'
+  const API_BASE_URL = 'http://localhost:8000';
+
+  // Check API connection on mount
+  useEffect(() => {
+    checkApiConnection();
+  }, []);
+
+  const checkApiConnection = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/health`);
+      if (response.ok) {
+        setIsConnected(true);
+        setError(null);
+      } else {
+        setIsConnected(false);
+        setError('API server is not responding');
+      }
+    } catch (error) {
+      setIsConnected(false);
+      setError('Cannot connect to API server. Make sure FastAPI is running on port 8000.');
     }
-  ];
+  };
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -560,195 +500,108 @@ const ChatbotAssistant = () => {
     scrollToBottom();
   }, [messages]);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Critical': return 'text-red-600 bg-red-100';
-      case 'Default': return 'text-red-600 bg-red-100';
-      case 'Risky': return 'text-yellow-600 bg-yellow-100';
-      case 'Secure': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
+  const sendMessageToAPI = async (message: string, history: ChatMessage[]): Promise<string> => {
+    try {
+      const requestBody: ChatRequest = {
+        message,
+        conversation_history: history
+      };
 
-  const processMessage = (message) => {
-    const lowerMessage = message.toLowerCase();
-    
-    // Risk scoring model information
-    if (lowerMessage.includes('risk') && (lowerMessage.includes('model') || lowerMessage.includes('scoring') || lowerMessage.includes('calculate'))) {
-      return `Our risk scoring model evaluates applications based on multiple factors:
+      const response = await fetch(`${API_BASE_URL}/chatbot/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
 
-**Risk Score Ranges:**
-• 0-30: Secure (Low Risk) - Green status
-• 31-70: Risky (Medium Risk) - Yellow status  
-• 71-100: Critical/Default (High Risk) - Red status
-
-**Key Assessment Factors:**
-• Purpose of application (Education, Personal, Business, Medical, etc.)
-• Financial stability indicators
-• Credit history and payment behavior
-• Debt-to-income ratios
-• Geographic and demographic risk factors
-
-The BPAi model uses weighted algorithms to compute a final risk percentage, helping prioritize applications that need immediate attention.`;
-    }
-
-    // Status information
-    if (lowerMessage.includes('status') || lowerMessage.includes('secure') || lowerMessage.includes('critical') || lowerMessage.includes('unstable')) {
-      const statusCounts = dashboardData.reduce((acc, app) => {
-        acc[app.status] = (acc[app.status] || 0) + 1;
-        return acc;
-      }, {});
-
-      return `**Current Status Overview:**
-• Critical: ${statusCounts.Critical || 0} applications (Immediate action required)
-• Default: ${statusCounts.Default || 0} applications (Payment issues)
-• Risky: ${statusCounts.Risky || 0} applications (Medium priority)  
-• Secure: ${statusCounts.Secure || 0} applications (Low risk)
-
-**Status Meanings:**
-• **Critical**: Risk score 71-100, requires immediate attention
-• **Default**: Risk score 71-100, payment/compliance issues
-• **Risky**: Risk score 31-70, needs monitoring
-• **Secure**: Risk score 0-30, standard processing`;
-    }
-
-    // Specific application lookup
-    const appMatch = message.match(/APP-\d{4}-\d{3}/i);
-    if (appMatch) {
-      const appId = appMatch[0].toUpperCase();
-      const app = dashboardData.find(a => a.id === appId);
-      if (app) {
-        return `**Application ${app.id} Details:**
-        
-👤 **Client:** ${app.client}
-📊 **Risk Score:** ${app.riskScore}% (${app.status})
-💡 **Purpose:** ${app.rationale}
-📅 **Date:** ${app.date}
-📞 **Phone:** ${app.phone}
-📍 **Address:** ${app.address}
-
-This application is classified as **${app.status}** based on our risk assessment model.`;
+      if (!response.ok) {
+        const errorData: ApiError = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
       }
-    }
 
-    // Client name search
-    const clientMatch = dashboardData.find(app => 
-      app.client.toLowerCase().includes(lowerMessage) || 
-      lowerMessage.includes(app.client.toLowerCase())
-    );
-    if (clientMatch) {
-      return `**Found client: ${clientMatch.client}**
-
-📋 **Application:** ${clientMatch.id}
-📊 **Risk Score:** ${clientMatch.riskScore}% (${clientMatch.status})
-💡 **Purpose:** ${clientMatch.rationale}
-📞 **Contact:** ${clientMatch.phone}
-📍 **Location:** ${clientMatch.address}`;
-    }
-
-    // High risk applications
-    if (lowerMessage.includes('high risk') || lowerMessage.includes('critical') || lowerMessage.includes('default')) {
-      const highRiskApps = dashboardData.filter(app => app.status === 'Critical' || app.status === 'Default');
-      if (highRiskApps.length > 0) {
-        return `**High Risk Applications (${highRiskApps.length} found):**
-
-${highRiskApps.map(app => 
-  `• ${app.id} - ${app.client} (Score: ${app.riskScore}% - ${app.status})\n  Purpose: ${app.rationale}`
-).join('\n\n')}
-
-These applications require immediate attention due to high risk scores or payment issues.`;
+      const data: ChatResponse = await response.json();
+      return data.response;
+    } catch (error) {
+      console.error('API Error:', error);
+      if (error instanceof Error) {
+        if (error.message.includes('fetch')) {
+          throw new Error('Cannot connect to the API server. Please check if the FastAPI server is running.');
+        }
+        throw error;
       }
+      throw new Error('An unexpected error occurred');
     }
-
-    // Statistics
-    if (lowerMessage.includes('stats') || lowerMessage.includes('summary') || lowerMessage.includes('overview')) {
-      const totalApps = dashboardData.length;
-      const avgRisk = Math.round(dashboardData.reduce((sum, app) => sum + app.riskScore, 0) / totalApps);
-      const statusCounts = dashboardData.reduce((acc, app) => {
-        acc[app.status] = (acc[app.status] || 0) + 1;
-        return acc;
-      }, {});
-
-      return `**Dashboard Statistics:**
-
-📊 **Total Applications:** ${totalApps}
-📈 **Average Risk Score:** ${avgRisk}%
-
-**Status Distribution:**
-🔴 Critical: ${statusCounts.Critical || 0} (${Math.round((statusCounts.Critical || 0) / totalApps * 100)}%)
-🔴 Default: ${statusCounts.Default || 0} (${Math.round((statusCounts.Default || 0) / totalApps * 100)}%)
-🟡 Risky: ${statusCounts.Risky || 0} (${Math.round((statusCounts.Risky || 0) / totalApps * 100)}%)
-🟢 Secure: ${statusCounts.Secure || 0} (${Math.round((statusCounts.Secure || 0) / totalApps * 100)}%)`;
-    }
-
-    // Help/commands
-    if (lowerMessage.includes('help') || lowerMessage.includes('what can you do')) {
-      return `**I can help you with:**
-
-🔍 **Search Applications**: Enter an application ID (e.g., "APP-2024-101")
-👤 **Find Clients**: Search by client name (e.g., "David Mercado")  
-📊 **Risk Analysis**: Ask about "risk scoring model" or "risk calculation"
-📈 **Status Info**: Ask about "status meanings" or specific statuses
-🚨 **Critical Cases**: Ask for "high risk" or "critical applications"
-📋 **Statistics**: Ask for "stats", "summary", or "overview"
-
-Just type your question naturally - I'll understand!`;
-    }
-
-    // Default response
-    return `I can help you with information about your dashboard data and risk scoring model. Try asking about:
-
-• Specific applications (e.g., "APP-2024-101")
-• Client information (e.g., "David Mercado")  
-• Risk scoring details
-• Application statistics
-• Critical or high-risk cases
-
-Type "help" to see all available commands.`;
   };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
+    
+    if (!isConnected) {
+      setError('Please check your connection to the API server');
+      return;
+    }
 
-    const userMessage = {
+    const userMessage: ChatMessage = {
       id: messages.length + 1,
       type: 'user',
       content: inputMessage,
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInputMessage('');
     setIsTyping(true);
+    setError(null);
 
-    // Simulate AI processing delay
-    setTimeout(() => {
-      const response = processMessage(inputMessage);
-      const botMessage = {
-        id: messages.length + 2,
+    try {
+      // Send to Gemini API via FastAPI
+      const response = await sendMessageToAPI(inputMessage, messages);
+      
+      const botMessage: ChatMessage = {
+        id: updatedMessages.length + 1,
         type: 'bot',
         content: response,
         timestamp: new Date()
       };
+
       setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMessage: ChatMessage = {
+        id: updatedMessages.length + 1,
+        type: 'bot',
+        content: error instanceof Error ? 
+          `❌ Error: ${error.message}` : 
+          '❌ Sorry, I encountered an error. Please try again.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      setError(error instanceof Error ? error.message : 'Unknown error occurred');
+    } finally {
       setIsTyping(false);
-    }, 1000);
+    }
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  const formatMessageContent = (content) => {
+  const formatMessageContent = (content: string): string => {
     // Convert markdown-style formatting to HTML
     return content
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/^• (.+)$/gm, '<div class="ml-4">• $1</div>')
-      .replace(/^(🔴|🔵|🟢|👤|📊|💡|📅|📞|📍|📋|📈|🚨|🔍|📋) (.+)$/gm, '<div class="flex items-start gap-2"><span>$1</span><span>$2</span></div>')
+      .replace(/^(🔴|🔵|🟢|👤|📊|💡|📅|📞|📍|📋|📈|🚨|🔍|📋|❌) (.+)$/gm, '<div class="flex items-start gap-2"><span>$1</span><span>$2</span></div>')
       .replace(/\n/g, '<br>');
+  };
+
+  const handleRetryConnection = () => {
+    checkApiConnection();
   };
 
   return (
@@ -757,14 +610,20 @@ Type "help" to see all available commands.`;
       {isOpen && (
         <div className="mb-4 w-80 h-96 bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col">
           {/* Header */}
-          <div className="bg-red-600 text-white p-4 rounded-t-lg flex items-center justify-between">
+          <div className={`p-4 rounded-t-lg flex items-center justify-between ${
+            isConnected ? 'bg-red-600' : 'bg-gray-600'
+          } text-white`}>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                <BarChart3 size={16} />
+                {isConnected ? <BarChart3 size={16} /> : <AlertCircle size={16} />}
               </div>
               <div>
-                <h3 className="font-semibold text-sm">Dashboard Assistant</h3>
-                <p className="text-xs opacity-90">Risk Analysis Helper</p>
+                <h3 className="font-semibold text-sm">
+                  Dashboard Assistant {isConnected ? '(AI)' : '(Offline)'}
+                </h3>
+                <p className="text-xs opacity-90">
+                  {isConnected ? 'Powered by Gemini AI' : 'Connection Error'}
+                </p>
               </div>
             </div>
             <button
@@ -774,6 +633,27 @@ Type "help" to see all available commands.`;
               <X size={16} />
             </button>
           </div>
+
+          {/* Connection Error Banner */}
+          {!isConnected && (
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 p-3 text-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <AlertCircle size={14} className="text-yellow-600" />
+                  <span className="text-yellow-800">API Disconnected</span>
+                </div>
+                <button
+                  onClick={handleRetryConnection}
+                  className="text-yellow-800 hover:text-yellow-900 underline text-xs"
+                >
+                  Retry
+                </button>
+              </div>
+              {error && (
+                <p className="text-yellow-700 text-xs mt-1">{error}</p>
+              )}
+            </div>
+          )}
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
@@ -797,7 +677,10 @@ Type "help" to see all available commands.`;
                   <div className={`text-xs mt-1 ${
                     message.type === 'user' ? 'text-red-100' : 'text-gray-500'
                   }`}>
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {message.timestamp.toLocaleTimeString([], { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
                   </div>
                 </div>
               </div>
@@ -807,10 +690,9 @@ Type "help" to see all available commands.`;
             {isTyping && (
               <div className="flex justify-start">
                 <div className="bg-white p-3 rounded-lg rounded-bl-none shadow-sm border max-w-[85%]">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  <div className="flex items-center space-x-2">
+                    <Loader size={14} className="animate-spin text-gray-400" />
+                    <span className="text-gray-500 text-sm">AI is thinking...</span>
                   </div>
                 </div>
               </div>
@@ -825,13 +707,18 @@ Type "help" to see all available commands.`;
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask about applications, risk scores, or clients..."
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                placeholder={
+                  isConnected 
+                    ? "Ask about applications, risk scores, or clients..."
+                    : "Connect to API server first..."
+                }
+                disabled={!isConnected || isTyping}
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 rows={1}
               />
               <button
                 onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isTyping}
+                disabled={!inputMessage.trim() || isTyping || !isConnected}
                 className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Send size={16} />
@@ -848,7 +735,9 @@ Type "help" to see all available commands.`;
           className="w-14 h-14 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition-all duration-300 flex items-center justify-center relative"
         >
           <MessageCircle size={24} />
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+          <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
+            isConnected ? 'bg-green-500' : 'bg-red-500'
+          }`}></div>
         </button>
       )}
     </div>

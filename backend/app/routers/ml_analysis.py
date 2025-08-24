@@ -10,25 +10,18 @@ from sqlalchemy.orm import Session
 import os
 import sys
 
-# Add the parent directory to Python path to import loan_screening
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-
-try:
-    from loan_screening import (
-        load_and_preprocess_data, 
-        ls_train_test_split, 
-        train_ordinal_gbm,
-        predict_loan_application,
-        generate_lime_explanation,
-        generate_aggregated_lime,
-        RISK_CATEGORY_MAP,
-        FEATURE_TO_5C_MAP,
-        decode_categoricals,
-        ENCODER_STORE
-    )
-except ImportError as e:
-    print(f"Warning: Could not import loan_screening module: {e}")
-    # We'll create fallback functions below
+from ..services.loan_screening import (
+    load_and_preprocess_data, 
+    ls_train_test_split, 
+    train_ordinal_gbm,
+    predict_loan_application,
+    generate_lime_explanation,
+    generate_aggregated_lime,
+    RISK_CATEGORY_MAP,
+    FEATURE_TO_5C_MAP,
+    decode_categoricals,
+    ENCODER_STORE
+)
 
 router = APIRouter(prefix="/api/ml", tags=["ml-analysis"])
 

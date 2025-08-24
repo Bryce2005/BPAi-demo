@@ -101,11 +101,11 @@ const GenericDataTable = <T extends BaseDataItem>({
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-red-600';
-    if (score >= 60) return 'text-orange-600';
-    if (score >= 40) return 'text-yellow-600';
-    if (score >= 20) return 'text-blue-600';
-    return 'text-green-600';
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-blue-600';
+    if (score >= 40) return 'text-orange-600';
+    if (score >= 20) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
   // Filtered data
@@ -176,10 +176,10 @@ const GenericDataTable = <T extends BaseDataItem>({
       case 'score':
         return (
           <div className="flex flex-col">
-            <span className={`text-2xl font-bold ${getScoreColor(Number(value))}`}>
-              {value}
+            <span className={`text-2xl font-bold ${getScoreColor(Number(value) * 100)}`}>
+              {(Number(value) * 100).toFixed(0)}%
             </span>
-            <span className="text-xs text-gray-500">Risk: {(Number(value) / 100 * 100).toFixed(1)}%</span>
+            <span className="text-xs text-gray-500">Confidence: {(Number(value) / 100 * 100).toFixed(2)}</span>
           </div>
         );
       case 'contact':
@@ -244,8 +244,8 @@ const GenericDataTable = <T extends BaseDataItem>({
                         <p className="text-sm text-gray-600">{new Date(item.processed_at).toLocaleDateString()}</p>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <span className={`text-xl font-bold ${getScoreColor(Number(item.score))}`}>
-                          {item.score}
+                        <span className={`text-l font-bold ${getScoreColor(Number(Math.max(...item.probabilities)) * 100)}`}>
+                          Confidence: {Number(Math.max(...item.probabilities)) * 100}
                         </span>
                       </div>
                     </div>

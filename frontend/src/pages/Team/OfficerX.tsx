@@ -23,7 +23,7 @@ const OfficerX: React.FC = () => {
   const transformedData = applicationDataX.map(app => ({
     ...app,
     status: app.risk_category,
-    riskScore: app.score,
+    confidenceScore: Math.max(...app.probabilities),
     rationale: app.loan_purpose,
     applicationDate: new Date(app.processed_at).toLocaleDateString(),
     clientName: `${app.first_name} ${app.last_name}`,
@@ -36,7 +36,7 @@ const OfficerX: React.FC = () => {
     return {
       applicationId: app.application_id,
       status: app.risk_category as 'Approved' | 'Rejected' | 'For Review' | 'Pending',
-      riskScore: app.score,
+      confidenceScore: Math.max(...app.probabilities),
       rationale: app.loan_purpose,
       submissionDate: new Date(app.processed_at).toLocaleDateString(),
       fullName: `${app.first_name} ${app.last_name}`,
@@ -66,8 +66,8 @@ const OfficerX: React.FC = () => {
         type: 'status'
       },
       {
-        key: 'riskScore',
-        label: 'Risk Score',
+        key: 'confidenceScore',
+        label: 'Confidence Score',
         type: 'score'
       },
       {
@@ -143,7 +143,7 @@ const OfficerX: React.FC = () => {
       'Critical': 'bg-blue-100 text-blue-800 border-blue-200',
       'Default': 'bg-purple-100 text-purple-800 border-purple-200',
     },
-    scoreField: 'riskScore',
+    scoreField: 'confidenceScore',
     scoreColorRanges: [
       { max: 30, className: 'text-green-600 font-semibold' },
       { max: 60, className: 'text-yellow-600 font-semibold' },
@@ -199,79 +199,17 @@ const OfficerX: React.FC = () => {
         bgColor: 'bg-red-100'
       },
       {
-        label: 'Avg Risk Score',
+        label: 'Avg Confidence Score',
         value: (data: any[]) => {
           const total = data.length;
           if (total === 0) return 0;
-          const sum = data.reduce((acc, app) => acc + app.riskScore, 0);
+          const sum = data.reduce((acc, app) => acc + Number(Math.max(...app.probabilities)) * 100, 2);
           return Math.round(sum / total);
         },
-        description: (data: any[], value: number) => 'Risk assessment',
-        icon: <Users className="w-6 h-6 text-red-600" />,
-        color: 'text-red-600',
-        bgColor: 'bg-red-100'
-      }
-    ],
-    charts: [
-      {
-        title: 'Status Distribution',
-        type: 'status',
-        categories: [
-          {
-            label: 'Pass',
-            filter: (item: any) => item.status === 'Pass',
-            color: 'green',
-            bgColor: 'bg-green-500'
-          },
-          {
-            label: 'Especially Mentioned',
-            filter: (item: any) => item.status === 'Especially Mentioned',
-            color: 'blue',
-            bgColor: 'bg-blue-500'
-          },
-          {
-            label: 'Doubtful',
-            filter: (item: any) => item.status === 'Doubtful',
-            color: 'purple',
-            bgColor: 'bg-purple-500'
-          },
-          {
-            label: 'Substandard Review',
-            filter: (item: any) => item.status === 'Substandard Review',
-            color: 'yellow',
-            bgColor: 'bg-yellow-500'
-          },
-          {
-            label: 'Loss',
-            filter: (item: any) => item.status === 'Loss',
-            color: 'red',
-            bgColor: 'bg-red-500'
-          }
-        ]
-      },
-      {
-        title: 'Risk Analysis',
-        type: 'risk',
-        categories: [
-          {
-            label: 'Low Risk (≤30)',
-            filter: (item: any) => item.riskScore <= 30,
-            color: 'green',
-            bgColor: 'bg-green-500'
-          },
-          {
-            label: 'Medium Risk (31-60)',
-            filter: (item: any) => item.riskScore > 30 && item.riskScore <= 60,
-            color: 'yellow',
-            bgColor: 'bg-yellow-500'
-          },
-          {
-            label: 'High Risk (>60)',
-            filter: (item: any) => item.riskScore > 60,
-            color: 'red',
-            bgColor: 'bg-red-500'
-          }
-        ]
+        description: (data: any[], value: number) => 'Confidence level',
+        icon: <Users className="w-6 h-6 text-blue-600" />,
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-100'
       }
     ],
     cardDisplayFields: {
