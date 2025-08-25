@@ -37,8 +37,8 @@ BPAi is built with a **modern, scalable tech stack**:
 - **AI Services:** 🤖 Gemini 1.5 & 2.0 Flash, Microsoft Azure Cognitive Services  
 - **Deployment:** ▲ Vercel (Frontend hosting)
 
-*Note that only the frontend of the app was deployed due to resource constraints.*
----
+_Note that only the frontend of the app was deployed due to resource constraints.
+_---
 
 ## 🔧 Installation
 
@@ -61,5 +61,6 @@ Get started in just a few steps:
 
 5. **Run the frontend**
     npm run dev
+
 
 
