@@ -37089,25 +37089,25 @@
 /***/ })
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_div3OLJ6DS1RRUANT4"></div>
+        <div class="lime top_div" id="top_divR35927TQ0RQ455L"></div>
         
         <script>
-        var top_div = d3.select('#top_div3OLJ6DS1RRUANT4').classed('lime top_div', true);
+        var top_div = d3.select('#top_divR35927TQ0RQ455L').classed('lime top_div', true);
         
             var pp_div = top_div.append('div')
                                 .classed('lime predict_proba', true);
             var pp_svg = pp_div.append('svg').style('width', '100%');
-            var pp = new lime.PredictProba(pp_svg, ["Pass", "Especially Mentioned (EM)", "Substandard", "Doubtful", "Loss"], [0.00013097002920544435, 0.9840882347038381, 0.015309305177832482, 0.00041977891340414403, 5.1711175719765195e-05]);
+            var pp = new lime.PredictProba(pp_svg, ["Secure", "Unstable", "Risky", "Critical", "Default"], [9.838006694530465e-05, 0.0007089067645802868, 0.13693511105703046, 0.8612065095135456, 0.0010510925978984191]);
             
         
         var exp_div;
-            var exp = new lime.Explanation(["Pass", "Especially Mentioned (EM)", "Substandard", "Doubtful", "Loss"]);
+            var exp = new lime.Explanation(["Secure", "Unstable", "Risky", "Critical", "Default"]);
         
                 exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["data_usage_patterns <= 0.00", 0.30869485346008707], ["0.24 < gross_monthly_income <= 0.49", 0.08633786468796086], ["bpi_successful_loans <= 0.12", 0.05812659065341364], ["bpi_loans_taken <= 0.20", 0.05238182996936105], ["0.00 < postpaid_plan_history <= 1.00", -0.016737270940492873], ["source_of_funds <= 0.00", -0.01328386780144001], ["24.00 < bpi_frequency_of_transactions <= 25.00", 0.01262196159781926], ["15.00 < prepaid_load_frequency <= 23.00", 0.012479679881187216], ["credit_limit <= 0.50", 0.012282665838163457], ["25362.72 < bpi_emi_payment <= 25654.65", 0.012085926939189983]], 1, exp_div);
+                exp.show([["gcash_avg_monthly_deposits > 0.50", 0.17669057715780784], ["0.50 < gross_monthly_income <= 0.74", 0.16955266226463825], ["bpi_loans_taken > 0.25", 0.05504120951060868], ["bpi_successful_loans > 0.14", 0.038469459196416374], ["credit_limit > 0.50", 0.02213956368568204], ["gcash_frequency_of_transactions > 25.00", 0.021259538208061316], ["years_of_stay <= 8.00", 0.01689205401802834], ["bpi_frequency_of_transactions <= 24.00", -0.01667239704876896], ["postpaid_plan_history <= 1.00", -0.01661593153554155], ["prepaid_load_frequency <= 15.00", 0.015892638502069338], ["2.00 < civil_status <= 3.00", 0.014053441267317168], ["39.00 < address_province <= 61.00", -0.013575561336175292], ["dependents <= 1.00", 0.011262425454497722], ["gcash_avg_monthly_withdrawals <= 14686.49", 0.010532475274428259], ["253014.07 < loan_amount_requested_php <= 502271.14", 0.010126568414208241], ["bpi_avg_monthly_deposits > 25122.32", 0.01004240040207377], ["0.33 < data_usage_patterns <= 0.67", -0.009124613579596454], ["1.00 < loan_purpose <= 2.00", 0.008426650632231865], ["4.00 < loan_tenor_months <= 8.00", 0.008387223778481116], ["1.00 < residence_type <= 2.00", 0.006973661311285279], ["1.00 < employment_type <= 2.00", -0.0065248679210314865], ["bpi_emi_payment > 25876.22", 0.006235286928483419], ["address_city <= 153.00", 0.0031256674046530905], ["bpi_avg_monthly_withdrawals > 26110.43", -0.0022338794160944976], ["source_of_funds <= 0.00", 0.001902588820097066]], 3, exp_div);
                 
         var raw_div = top_div.append('div');
-            exp.show_raw_tabular([["data_usage_patterns", "0.00", 0.30869485346008707], ["gross_monthly_income", "0.41", 0.08633786468796086], ["bpi_successful_loans", "0.12", 0.05812659065341364], ["bpi_loans_taken", "0.20", 0.05238182996936105], ["postpaid_plan_history", "1.00", -0.016737270940492873], ["source_of_funds", "0.00", -0.01328386780144001], ["bpi_frequency_of_transactions", "25.00", 0.01262196159781926], ["prepaid_load_frequency", "23.00", 0.012479679881187216], ["credit_limit", "0.50", 0.012282665838163457], ["bpi_emi_payment", "25654.65", 0.012085926939189983]], 1, raw_div);
+            exp.show_raw_tabular([["gcash_avg_monthly_deposits", "0.76", 0.17669057715780784], ["gross_monthly_income", "0.60", 0.16955266226463825], ["bpi_loans_taken", "0.33", 0.05504120951060868], ["bpi_successful_loans", "0.17", 0.038469459196416374], ["credit_limit", "0.74", 0.02213956368568204], ["gcash_frequency_of_transactions", "27.00", 0.021259538208061316], ["years_of_stay", "0.00", 0.01689205401802834], ["bpi_frequency_of_transactions", "21.00", -0.01667239704876896], ["postpaid_plan_history", "1.00", -0.01661593153554155], ["prepaid_load_frequency", "14.00", 0.015892638502069338], ["civil_status", "3.00", 0.014053441267317168], ["address_province", "52.00", -0.013575561336175292], ["dependents", "0.00", 0.011262425454497722], ["gcash_avg_monthly_withdrawals", "4789.78", 0.010532475274428259], ["loan_amount_requested_php", "281481.98", 0.010126568414208241], ["bpi_avg_monthly_deposits", "27278.87", 0.01004240040207377], ["data_usage_patterns", "0.67", -0.009124613579596454], ["loan_purpose", "2.00", 0.008426650632231865], ["loan_tenor_months", "6.00", 0.008387223778481116], ["residence_type", "2.00", 0.006973661311285279], ["employment_type", "2.00", -0.0065248679210314865], ["bpi_emi_payment", "29443.12", 0.006235286928483419], ["address_city", "10.00", 0.0031256674046530905], ["bpi_avg_monthly_withdrawals", "30365.88", -0.0022338794160944976], ["source_of_funds", "0.00", 0.001902588820097066]], 3, raw_div);
         
         </script>
         </body></html>

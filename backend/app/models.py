@@ -71,5 +71,3 @@ class RiskAnalysisResponse(BaseModel):
     improvements: List[str]
     aiSummary: str
 
-# This is what test_db.py was looking for
-# You can add more models here later

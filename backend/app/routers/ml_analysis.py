@@ -1,11 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Dict, List, Optional
-import pandas as pd
-import numpy as np
-from ..database import SessionLocal, get_db
-from ..models import Application
-from sqlalchemy.orm import Session
+from typing import Dict, List
 from ..services.loan_application import DetailedProcessor
 import os
 
@@ -48,10 +43,7 @@ async def analyze_application(
 ):    
     try:
         detailed_processor = DetailedProcessor("backend/sample_data/apps_synthetic_data_200.csv")
-        analysis_result = detailed_processor.process_specific_application(request.application_id)
-        # Process the application
-        # analysis_result = processor.process_specific_application(request.application_id)
-        
+        analysis_result = detailed_processor.process_specific_application(request.application_id)     
         return analysis_result
         
     except ValueError as e:
@@ -73,7 +65,7 @@ class ReportResponse(BaseModel):
 async def generate_report_endpoint(request: ReportRequest):
     """Generate a comprehensive ML analysis report for an application"""
     try:
-        # Initialize the DetailedProcessor with your CSV path
+        # Initialize the DetailedProcessor with CSV path
         detailed_processor = DetailedProcessor("backend/sample_data/apps_synthetic_data_200.csv")
         
         # Generate the report
@@ -102,7 +94,6 @@ async def generate_report_endpoint(request: ReportRequest):
 async def download_report_endpoint(application_id: str):
     """Download the generated report for an application"""
     try:
-        # Based on your file structure, reports are saved in 'outdir' folder
         # with filename format: report_{application_id}.pdf
         report_filename = f"report_{application_id}.pdf"
         report_path = os.path.join("outdir", report_filename)

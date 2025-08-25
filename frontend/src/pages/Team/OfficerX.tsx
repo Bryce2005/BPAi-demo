@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { X, Eye, Phone, MapPin, FileText, Users, AlertTriangle, CheckCircle } from 'lucide-react';
+import { X, Phone, MapPin, FileText, Users, AlertTriangle, CheckCircle } from 'lucide-react';
 import GenericDataTable from '../../components/GenericDataTable';
 import ApplicationDetailsModal from '../../components/AppDetails';
 import type { LoanApplication } from '../../shared/types.ts';
 import { applicationDataX } from '../../shared/data.ts';
 
 const OfficerX: React.FC = () => {
-  const navigate = useNavigate();
   const [selectedApplication, setSelectedApplication] = useState<LoanApplication | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleViewDetails = (item: any) => {
-    navigate(`/application/${item.id}?tab=overview`);
-  };
-
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -252,7 +246,6 @@ const OfficerX: React.FC = () => {
         data={transformedData}
         config={tableConfig}
         onRowClick={handleRowClick}
-        // onViewDetails={handleViewDetails}
       />
       <ApplicationDetailsModal
         application={selectedApplication}

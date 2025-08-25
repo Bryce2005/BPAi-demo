@@ -319,7 +319,6 @@ This is an automated message. Please do not reply directly to this email."""
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to send test email: {str(e)}")
 
-# Configuration check function (don't run on import)
 def print_email_config():
     print("=" * 50)
     print("EMAIL SERVICE CONFIGURATION")

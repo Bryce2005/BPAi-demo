@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from pathlib import Path
 import uuid
 import shutil
-import os
 import json
 import numpy as np
 import pandas as pd
@@ -19,7 +18,7 @@ router = APIRouter(prefix="/upload", tags=["upload"])
 class AnalysisResponse(BaseModel):
     session_id: str
     status: str
-    analysis: dict  # You can replace this with a more specific model if needed
+    analysis: dict 
 
 # Helper to sanitize NaN values from JSON
 def clean_json(data):

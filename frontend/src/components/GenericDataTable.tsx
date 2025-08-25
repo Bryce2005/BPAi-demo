@@ -82,7 +82,6 @@ const GenericDataTable = <T extends BaseDataItem>({
   data,
   config,
   onRowClick,
-  onViewDetails,
 }: GenericDataTableProps<T>) => {
   const [currentView, setCurrentView] = useState<'summary' | 'spreadsheet'>('spreadsheet');
   const [searchTerm, setSearchTerm] = useState('');

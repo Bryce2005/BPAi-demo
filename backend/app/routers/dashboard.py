@@ -5,8 +5,6 @@ from ..database import get_db
 import pandas as pd
 from .. import models
 
-from typing import List, Dict, Any
-
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 @router.get("/")

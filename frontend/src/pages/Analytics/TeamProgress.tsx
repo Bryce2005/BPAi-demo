@@ -400,38 +400,6 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
               </div>
             </div>
           </div>
-
-          {/* Quick Actions
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="p-6 border-b border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900">Quick Team Actions</h3>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                  <Users className="w-5 h-5 text-blue-600" />
-                  <div className="text-left">
-                    <div className="text-sm font-medium text-gray-900">Redistribute Cases</div>
-                    <div className="text-xs text-gray-500">Balance workload</div>
-                  </div>
-                </button>
-                <button className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-colors">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
-                  <div className="text-left">
-                    <div className="text-sm font-medium text-gray-900">Generate Report</div>
-                    <div className="text-xs text-gray-500">Team performance</div>
-                  </div>
-                </button>
-                <button className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-colors">
-                  <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  <div className="text-left">
-                    <div className="text-sm font-medium text-gray-900">Alert Supervisor</div>
-                    <div className="text-xs text-gray-500">Escalation needed</div>
-                  </div>
-                </button>
-              </div>
-            </div>
-          </div> */}
         </div>
 
   );

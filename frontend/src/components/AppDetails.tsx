@@ -1,5 +1,5 @@
 import { useState} from 'react';
-import { X, TrendingUp, CheckCircle, Brain, FileText} from 'lucide-react';
+import { X, TrendingUp, Brain, FileText} from 'lucide-react';
 import OverviewPage from './Overview';
 import RiskAnalysisPage from './RiskAnalysis';
 import AIInsights from './AIAnalysis';
@@ -25,9 +25,7 @@ const ApplicationDetailsModal = ({ application, isOpen, onClose }: ApplicationDe
   const [activeTab, setActiveTab] = useState('overview');
   // Add mlAnalysis state if you need it for the modal header
   const [mlAnalysis, setMlAnalysis] = useState<MLAnalysis | null>(null);
-  const handleAnalysisStateChange = (analyzing: any) => {
-    setIsAnalyzing(analyzing);
-  };
+
   const [sharedAnalysis, setSharedAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const handleAnalysisComplete = (analysis: any) => {
@@ -133,7 +131,6 @@ const ApplicationDetailsModal = ({ application, isOpen, onClose }: ApplicationDe
               application={application}
               existingAnalysis={sharedAnalysis}
               onAnalysisComplete={handleAnalysisComplete}
-              // onAnalysisStateChange={handleAnalysisStateChange}
               autoRunAnalysis={false}
             />
           )}

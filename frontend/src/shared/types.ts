@@ -1,4 +1,3 @@
-// Define your Application interface
 export interface LoanApplication {
   application_id: string;
   application_date: string; // ISO or MM/DD/YYYY

@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { useState } from 'react';
 import { TrendingUp, Clock, Target, CheckCircle, AlertCircle, Eye, CircleUser} from 'lucide-react';
 
 const YourProgress = () => {

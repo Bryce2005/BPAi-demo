@@ -1,18 +1,13 @@
-# backend/app/main.py
-# ## Run using uvicorn backend.app.main:app --reload
+## Run using uvicorn backend.app.main:app --reload
 
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import pandas as pd
-from typing import List
-from io import StringIO
 import os
 from .database import engine
 from . import models
 from .routers import upload, dashboard, email, ml_analysis, chatbot
-from .models import Application
-import numpy as np
+
 
 # Create tables
 models.Base.metadata.create_all(bind=engine)

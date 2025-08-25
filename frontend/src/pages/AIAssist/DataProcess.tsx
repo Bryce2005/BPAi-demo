@@ -736,7 +736,7 @@ const sendAutomatedEmails = async () => {
                               </div>
                               <div className="flex items-center">
                                 {details.valid_payslip ? <FileCheck className="w-4 h-4 mr-2" /> : <FileX className="w-4 h-4 mr-2" />}
-                                <span>Payslip: Information added to database.</span>
+                                <span>Payslip: {details.valid_payslip ? 'Information added to database' : 'Information not added to database'}.</span>
                               </div>
                             </div>
                           </li>

@@ -1,36 +1,30 @@
 import google.generativeai as genai
 import os
 
-import re
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.graphics.shapes import Line
 
 import markdown
 from bs4 import BeautifulSoup
 
-import pdb
 from dotenv import load_dotenv
 
 load_dotenv()
 
 PAGE_WIDTH, PAGE_HEIGHT = A4
-MARGIN = 50  # page margin in points
+MARGIN = 50  
 
 # Configure the API key
-genai.configure(api_key=os.getenv("GEMINI_API_KEY")) # Or use os.environ["GEMINI_API_KEY"]
+genai.configure(api_key=os.getenv("GEMINI_API_KEY")) 
 
 # Create the model
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 # Create the model
 model = genai.GenerativeModel('gemini-1.5-flash')
-
-# RISK_CATEGORY_MAP = {
-#     0: "Pass", 1: "Especially Mentioned (EM)", 2: "Substandard",
-#     3: "Doubtful", 4: "Loss"
-# }
 
 RISK_CATEGORY_MAP = {
     0: "Secure", 1: "Unstable", 2: "Risky",
@@ -50,9 +44,9 @@ def explain_ai(gen_type, df, application_id, lime_explanation, aggregated_lime_s
         return response.text
     
     elif gen_type == 'full_report': 
-        lime_image_path=f'outdir\lime_explanation_{application_id}.png',
-        aggregatedlime_image_path=f'outdir\lime_aggregated_plot_{application_id}.png',
-        shap_image_path=f'outdir\shap_explanation_{application_id}.png'
+        lime_image_path=f'outdir/lime_explanation_{application_id}.png',
+        aggregatedlime_image_path=f'outdir/lime_aggregated_plot_{application_id}.png',
+        shap_image_path=f'outdir/shap_explanation_{application_id}.png'
         prompt = generate_full_report_prompt(df, 
                                              application_id=application_id, 
                                              lime_explanation=lime_explanation,
@@ -62,7 +56,7 @@ def explain_ai(gen_type, df, application_id, lime_explanation, aggregated_lime_s
                                              aggregatedlime_image_path=aggregatedlime_image_path,
                                              shap_image_path=shap_image_path,
                                              additional_instructions=additional_instructions)
-#         print(prompt)
+
         response = model.generate_content(prompt)
         os.makedirs(outdir, exist_ok=True)
         filename = os.path.join(outdir, f"report_{application_id}.pdf")
@@ -485,7 +479,7 @@ def generate_pdf_from_text(markdown_text, filename="report.pdf", extra_images=No
             from reportlab.platypus import Drawing
             from reportlab.lib.colors import black
             d = Drawing(available_width, 1)
-            d.add(reportlab.graphics.shapes.Line(0, 0, available_width, 0, strokeColor=black))
+            d.add(Line(0, 0, available_width, 0, strokeColor=black))
             story.append(d)
             story.append(Spacer(1, 6))
 

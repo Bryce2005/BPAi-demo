@@ -140,7 +140,6 @@ const OverviewPage = ({application}: any) => {
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-medium text-gray-900">Application Status</h4>
-                {/* <p className="text-sm text-gray-600">Submitted on: {new Date(application.application_date).toLocaleDateString() || "Date not record"}</p> */}
               </div>
               <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getRiskCategoryColor(application.status)}`}>
                 {application.status}

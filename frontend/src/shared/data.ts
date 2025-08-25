@@ -1,7 +1,5 @@
 import type { LoanApplication } from './types';
 
-// This is the updated application data array.
-// The data has been re-indexed to start with id 1 and application_id 'APP-2024-001'.
 export const applicationDataX: LoanApplication[] = [
   {
     "application_id": "APP-20250213-2824",

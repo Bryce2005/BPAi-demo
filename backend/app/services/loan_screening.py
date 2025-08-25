@@ -1,5 +1,3 @@
-# loan_screening.py
-
 import os
 import pandas as pd
 import numpy as np
@@ -11,11 +9,6 @@ import shap
 import lime
 import lime.lime_tabular
 import matplotlib.pyplot as plt
-from typing import TypedDict, Annotated, List
-import operator
-import re
-
-import pdb
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
@@ -80,11 +73,9 @@ def load_and_preprocess_data(filepath="outdir/synthetic_data.csv"):
     df['risk_category'] = pd.cut(df['risk_index_score'], bins=bin_edges, labels=[4, 3, 2, 1, 0], right=False)
     df['risk_category'] = df['risk_category'].astype(int)
 
-#     print("Risk Category Distribution (Bell Curve):")
-#     print(df['risk_category'].value_counts().sort_index())
     return df
 
-# --- Step 2: Model Training and Evaluation (No Changes) ---
+# --- Step 2: Model Training and Evaluation ---
 
 def encode_df(df):
     X = df.drop(columns=['risk_index_score', 'risk_category']+[col for col in non_features if col != 'application_id'])
@@ -160,7 +151,7 @@ def generate_shap_waterfall_plot(model, X, instance_index, filename="shap_waterf
     plt.close()
     print(f"\nSHAP waterfall plot saved to {filename}")
 
-# --- Step 3: Prediction and Explanation (Minor Changes to Aggregated LIME) ---
+# --- Step 3: Prediction and Explanation ---
 
 
 RISK_CATEGORY_MAP = {

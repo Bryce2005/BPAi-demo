@@ -21,7 +21,7 @@ model = genai.GenerativeModel('gemini-1.5-flash')
 # Pydantic models
 class ChatMessage(BaseModel):
     id: int
-    type: str  # 'user' or 'bot'
+    type: str
     content: str
     timestamp: datetime
 
@@ -35,10 +35,10 @@ class ChatResponse(BaseModel):
 
 def load_application_data():
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-    json_path = os.path.join(base_dir, "application_data.json")
+    json_path = os.path.join(base_dir, "applications.json")
     with open(json_path, 'r') as f:
-            data = json.load(f)
-            return data.get('applicationDataY', []) + data.get('applicationDataX', [])
+        data = json.load(f)
+        return data
 
 DASHBOARD_DATA = json.dumps(load_application_data(), indent=2)
 

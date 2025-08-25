@@ -3,8 +3,7 @@ import pandas as pd
 import numpy as np
 from faker import Faker
 import os
-import string
-from datetime import datetime, timedelta
+from datetime import datetime
 
 fake = Faker('en_PH')
 Faker.seed(42) 

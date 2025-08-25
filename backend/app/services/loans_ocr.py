@@ -2,7 +2,6 @@ import os
 import re
 import zipfile
 import tempfile
-import json
 from difflib import SequenceMatcher
 import pandas as pd
 import numpy as np
@@ -15,7 +14,7 @@ load_dotenv()
 
 # Configure Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 
 def clean_dict_for_json(data):
