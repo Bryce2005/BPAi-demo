@@ -19,7 +19,7 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
     todayProcessed: 89,
     todayNew: 102,
     avgRiskScore: 52,
-    topPerformer: 'Officer X',
+    topPerformer: 'Gabriel Lorenzo',
     escalationRate: 12,
     activeOfficers: 6
   };
@@ -145,9 +145,9 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
               <div className="p-6">
                 <div className="space-y-4">
                   {[
-                    { name: 'Officer X', cases: 45, accuracy: 96, status: 'top', online: true },
-                    { name: 'Officer Y', cases: 38, accuracy: 94, status: 'good', online: true },
-                    { name: 'Officer Z', cases: 38, accuracy: 94, status: 'current', online: true },
+                    { name: 'Gabriel Lorenzo', cases: 45, accuracy: 96, status: 'top', online: true },
+                    { name: 'Camille Reyes', cases: 38, accuracy: 94, status: 'good', online: true },
+                    { name: 'Gerard Lacson', cases: 38, accuracy: 94, status: 'current', online: true },
                   ].map((officer, index) => (
                     <div key={officer.name} className={`flex items-center justify-between p-3 rounded-lg ${
                       officer.status === 'current' ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'
@@ -284,13 +284,13 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
               <div className="p-6">
                 <div className="space-y-4">
                   {[
-                    { time: '15:30', officer: 'Officer X', action: 'Completed low-risk case #4521', status: 'success' },
-                    { time: '15:20', officer: 'Officer Z', action: 'Processing case #4518', status: 'active' },
-                    { time: '15:10', officer: 'Officer X', action: 'Completed high-risk case #4521', status: 'success' },
-                    { time: '14:50', officer: 'Officer Y', action: 'Processing case #4518', status: 'active' },
-                    { time: '14:30', officer: 'Officer X', action: 'Completed high-risk case #4521', status: 'success' },
-                    { time: '14:02', officer: 'Officer Y', action: 'Processing case #4518', status: 'active' },
-                    { time: '13:45', officer: 'Officer Z', action: 'Completed medium-risk case', status: 'active' },
+                    { time: '15:30', officer: 'Gabriel Lorenzo', action: 'Completed low-risk case #4521', status: 'success' },
+                    { time: '15:20', officer: 'Camille Reyes', action: 'Processing case #4518', status: 'active' },
+                    { time: '15:10', officer: 'Gabriel Lorenzo', action: 'Completed high-risk case #4521', status: 'success' },
+                    { time: '14:50', officer: 'Gerard Lacson', action: 'Processing case #4518', status: 'active' },
+                    { time: '14:30', officer: 'Gabriel Lorenzo', action: 'Completed high-risk case #4521', status: 'success' },
+                    { time: '14:02', officer: 'Gerard Lacson', action: 'Processing case #4518', status: 'active' },
+                    { time: '13:45', officer: 'Camille Reyes', action: 'Completed medium-risk case', status: 'active' },
                   ].map((activity, index) => (
                     <div key={index} className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-12 text-xs text-gray-500 font-medium mt-1">
@@ -354,9 +354,9 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
                     <h4 className="text-sm font-medium text-gray-700 mb-3">Officer Availability</h4>
                     <div className="space-y-3">
                       {[
-                        { name: 'Officer X', status: 'available', load: 85, cases: 5 },
-                        { name: 'Officer Y', status: 'available', load: 70, cases: 3 },
-                        { name: 'Officer Z', status: 'break', load: 45, cases: 2 },
+                        { name: 'Gabriel Lorenzo', status: 'available', load: 85, cases: 5 },
+                        { name: 'Gerard Lacson', status: 'available', load: 70, cases: 3 },
+                        { name: 'Camille Reyes', status: 'break', load: 45, cases: 2 },
                       ].map((officer, ) => (
                         <div key={officer.name} className="flex items-center justify-between py-2">
                           <div className="flex items-center gap-3">
