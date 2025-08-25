@@ -23,7 +23,7 @@ function App() {
         <main className="flex-1 overflow-y-auto ml-64">
           <Routes>
             {/* Default redirect */}
-            <Route path="/" element={<Navigate to="/analytics/your-progress" replace />} />
+            <Route path="/" element={<Navigate to="/aiassist/dataprocess" replace />} />
             
             {/* AIAssist Routes */}
             <Route path="/aiassist/dataprocess" element={<DataProcess />} />
