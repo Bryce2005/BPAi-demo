@@ -68,7 +68,7 @@ Get started in just a few steps:
 ## 🌐 App Links
 - **Local Frontend:** `http://localhost:5173/`
 - **Live Frontend:** [Vercel Link](https://bp-ai-demo-31e2.vercel.app/)
-- - *Please do not reload the page as this causes an error. If this does occur, simply click on this link once again to visit the link.*
+  - *Please do not reload the page as this causes an error. If this does occur, simply click on this link once again to visit the link.*
 - **API Endpoint (Backend):** `http://localhost:8000/docs` (or your deployed FastAPI docs)
 
 ## 🔗 Additional Resources
@@ -83,6 +83,7 @@ Get started in just a few steps:
    - Deanne Gabrielle D. Algenio (deanne.algenio@gmail.com)
    - Vince Dexter Y. Ang (vince.ang@student.ateneo.edu)
    - Arabella B. Isles (arabella.isles@student.ateneo.edu)
+
 
 
 
