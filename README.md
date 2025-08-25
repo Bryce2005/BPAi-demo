@@ -50,7 +50,7 @@ Get started in just a few steps:
    cd your-repo
 
 2. **Set up environment variables**
-    Use the existing .env.example and update its values to fit your specific details.
+    - Use the existing .env.example and update its values to fit your specific details.
 
 3. **Install dependencies**
    ```bash
@@ -83,4 +83,5 @@ Get started in just a few steps:
    - Deanne Gabrielle D. Algenio (deanne.algenio@gmail.com)
    - Vince Dexter Y. Ang (vince.ang@student.ateneo.edu)
    - Arabella B. Isles (arabella.isles@student.ateneo.edu)
+
 
