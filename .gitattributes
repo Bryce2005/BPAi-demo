@@ -4,3 +4,13 @@
 *.json text eol=lf
 *.py text eol=lf
 *.html text eol=lf
+
+# Ignore frontend build outputs
+build/* linguist-vendored
+dist/* linguist-vendored
+out/* linguist-vendored
+.next/* linguist-vendored
+coverage/* linguist-vendored
+
+# Ignore dependencies
+node_modules/* linguist-vendored
