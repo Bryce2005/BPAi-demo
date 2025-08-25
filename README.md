@@ -67,15 +67,14 @@ Get started in just a few steps:
 
 ## 🌐 App Links
 - **Local Frontend:** `http://localhost:5173/`
-- **Live Frontend:** [Vercel Link](https://your-vercel-app.vercel.app/)  
+- **Live Frontend:** [Vercel Link](https://bp-ai-demo-31e2.vercel.app/)  
 - **API Endpoint (Backend):** `http://localhost:8000/docs` (or your deployed FastAPI docs)
 
 ## 🔗 Additional Resources
-- **Pitch Video:** 
-- **Demo Video:** [Demo Video]`https://drive.google.com/file/d/1vwhSyAuX0dRPJCpEJ-oO02LE2KfbQZ_u/view?usp=sharing`
-- **BPAi Documentation Report:**: 
-- **BPAi Risk Classification Guide:** `https://drive.google.com/file/d/1UH8zI8Xwbv6ZDUID0aLGSSgHvLeq_2TE/view?usp=drive_link`
-- **BPAi Master Drive:**
+- **Pitch Video:** [Pitch Video] (https://drive.google.com/file/d/1vwhSyAuX0dRPJCpEJ-oO02LE2KfbQZ_u/view?usp=drive_link)
+- **Demo Video:** [Demo Video] (https://drive.google.com/file/d/11wCkDEtNuhHXCUZk1W8XO8CXgFWillOg/view?usp=sharing)
+- **BPAi Documentation Report:** [Documentation Report] ()
+- **BPAi Risk Classification Guide:** [Classification Guide] (https://drive.google.com/file/d/1UH8zI8Xwbv6ZDUID0aLGSSgHvLeq_2TE/view?usp=drive_link)
 
 ## 👥 Contributors
    BPAi is a web app project developed by 4 data science seniors from Ateneo de Manila University.
