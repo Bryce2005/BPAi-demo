@@ -82,28 +82,6 @@ const generateReport = async (applicationId: string) => {
   };
 };
 
-// Alternative: If you want to download the report directly
-const downloadReport = async (applicationId: string) => {
-  const response = await fetch(`${API_BASE_URL}/api/ml/download-report/${applicationId}`, {
-    method: 'GET',
-  });
-
-  if (!response.ok) {
-    throw new Error('Report download failed');
-  }
-
-  // Create blob and download
-  const blob = await response.blob();
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `loan_analysis_report_${applicationId}.pdf`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  window.URL.revokeObjectURL(url);
-};
-
 interface RiskAnalysisProps {
   application: {
     applicationId: string;
@@ -128,7 +106,7 @@ const RiskAnalysisPage: React.FC<RiskAnalysisProps> = ({
   const [reportError, setReportError] = useState<string | null>(null);
   const [reportUrl, setReportUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [modelStatus, setModelStatus] = useState<any>(null);
+  const [, setModelStatus] = useState<any>(null);
   const [hasRunInitialCheck, setHasRunInitialCheck] = useState<boolean>(false);
 
   // Initialize with existing analysis if provided
@@ -207,16 +185,8 @@ const RiskAnalysisPage: React.FC<RiskAnalysisProps> = ({
 
   const handleDownloadReport = async () => {
     if (reportUrl) {
-      // Option 1: Open in new tab
       window.open(reportUrl, '_blank');
-      
-      // Option 2: Direct download (uncomment if you prefer this)
-      // try {
-      //   await downloadReport(application.applicationId);
-      // } catch (error) {
-      //   console.error('Download failed:', error);
-      //   setReportError(error instanceof Error ? error.message : 'Download failed');
-      // }
+
     }
   };
 

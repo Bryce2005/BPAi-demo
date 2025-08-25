@@ -24,7 +24,7 @@ interface ApplicationDetailsModalProps {
 const ApplicationDetailsModal = ({ application, isOpen, onClose }: ApplicationDetailsModalProps) => {
   const [activeTab, setActiveTab] = useState('overview');
   // Add mlAnalysis state if you need it for the modal header
-  const [mlAnalysis, setMlAnalysis] = useState<MLAnalysis | null>(null);
+  const [mlAnalysis, ] = useState<MLAnalysis | null>(null);
 
   const [sharedAnalysis, setSharedAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);

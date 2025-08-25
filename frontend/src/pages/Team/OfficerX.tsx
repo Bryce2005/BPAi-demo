@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
 import { X, Phone, MapPin, FileText, Users, AlertTriangle, CheckCircle } from 'lucide-react';
 import GenericDataTable from '../../components/GenericDataTable';
 import ApplicationDetailsModal from '../../components/AppDetails';
@@ -149,7 +148,7 @@ const OfficerX: React.FC = () => {
       {
         label: 'Total Applications',
         value: (data: any[]) => data.length,
-        description: (data: any[], value: number) => 'All time',
+        description: () => 'All time',
         icon: <FileText className="w-6 h-6 text-gray-600" />,
         color: 'text-gray-900',
         bgColor: 'bg-gray-100'
@@ -174,7 +173,7 @@ const OfficerX: React.FC = () => {
           const critical = data.filter(app => app.status === 'Critical').length;
           return unstable + risky + critical;
         },
-        description: (data: any[], value: number) => 'Require review',
+        description: () => 'Require review',
         icon: <AlertTriangle className="w-6 h-6 text-yellow-600" />,
         color: 'text-yellow-600',
         bgColor: 'bg-yellow-100'
@@ -202,7 +201,7 @@ const OfficerX: React.FC = () => {
           const sum = data.reduce((acc, app) => acc + Number(Math.max(...app.probabilities)) * 100, 2);
           return Math.round(sum / total);
         },
-        description: (data: any[], value: number) => 'Confidence level',
+        description: () => 'Confidence level',
         icon: <Users className="w-6 h-6 text-blue-600" />,
         color: 'text-blue-600',
         bgColor: 'bg-blue-100'

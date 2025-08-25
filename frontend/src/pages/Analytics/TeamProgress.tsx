@@ -63,10 +63,9 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
   const ProgressBar: React.FC<{
     label: string;
     value: number;
-    total: number;
     color: string;
     percentage: number;
-  }> = ({ label, value, total, color, percentage }) => (
+  }> = ({ label, value, color, percentage }) => (
     <div className="flex items-center justify-between py-3">
       <div className="flex items-center gap-3 flex-1">
         <div className={`w-3 h-3 rounded-full ${color}`}></div>
@@ -191,35 +190,30 @@ const TeamProgress: React.FC<TeamProgressProps> = () => {
                   <ProgressBar 
                     label="Makati Central" 
                     value={25}
-                    total={100}
                     color="bg-blue-500" 
                     percentage={35} 
                   />
                   <ProgressBar 
                     label="Ortigas Center, Pasig" 
                     value={18}
-                    total={100}
                     color="bg-green-500" 
                     percentage={25} 
                   />
                   <ProgressBar 
                     label="Tondo, Manila" 
                     value={15}
-                    total={100}
                     color="bg-yellow-500" 
                     percentage={21} 
                   />
                   <ProgressBar 
                     label="Fairview, QC" 
                     value={10}
-                    total={100}
                     color="bg-purple-500" 
                     percentage={14} 
                   />
                   <ProgressBar 
                     label="Alabang, Muntinlupa" 
                     value={4}
-                    total={100}
                     color="bg-red-500" 
                     percentage={5} 
                   />

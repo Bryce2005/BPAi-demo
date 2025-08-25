@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { TrendingUp, Clock, Target, CheckCircle, AlertCircle, Eye, CircleUser} from 'lucide-react';
 
 const YourProgress = () => {
-  const [selectedDate, setSelectedDate] = useState('08/23/2025');
-  
+    
   // Sample data based on your applications
   const applications = [
     { id: 'APP-2024-001', status: 'Approved', riskScore: 65, rationale: 'Education', client: 'Olivia Santiago', date: '8/26/2024' },
@@ -45,12 +43,6 @@ const YourProgress = () => {
   ];
 
   // Risk distribution data
-  const riskData = [
-    { category: 'Low (0-30)', count: 3, color: '#10b981' },
-    { category: 'Medium (31-70)', count: 3, color: '#f59e0b' },
-    { category: 'High (71-100)', count: 2, color: '#ef4444' }
-  ];
-
   const recentActivities = [
     { action: 'Application Approved', client: 'Victor Manzo', time: '2 min ago', icon: CheckCircle, color: 'text-green-500' },
     { action: 'Started Review', client: 'Ursula Castro', time: '15 min ago', icon: Eye, color: 'text-yellow-500' },
@@ -187,7 +179,7 @@ const YourProgress = () => {
       <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Weekly Performance Trends</h3>
         <div className="flex justify-between items-end space-x-2">
-          {weeklyData.map((day, index) => (
+          {weeklyData.map((day, ) => (
             <div key={day.day} className="flex flex-col items-center space-y-2 flex-1">
               <span className="text-xs text-gray-600">{day.day}</span>
               <div 
