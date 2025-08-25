@@ -37,8 +37,8 @@ BPAi is built with a **modern, scalable tech stack**:
 - **AI Services:** 🤖 Gemini 1.5 & 2.0 Flash, Microsoft Azure Cognitive Services  
 - **Deployment:** ▲ Vercel (Frontend hosting)
 
-_Note that only the frontend of the app was deployed due to resource constraints.
-_---
+   *Note that only the frontend of the app was deployed due to resource constraints.*
+
 
 ## 🔧 Installation
 
@@ -62,5 +62,21 @@ Get started in just a few steps:
 5. **Run the frontend**
     npm run dev
 
+## 🌐 App Links
+- **Local Frontend:** `http://localhost:5173/`
+- **Live Frontend:** [Demo Link](https://your-vercel-app.vercel.app/)  
+- **API Endpoint (Backend):** `http://localhost:8000/docs` (or your deployed FastAPI docs)
 
+## 🔗 Additional Resources
+- **Pitch Video:** 
+- **Demo Video:** `https://drive.google.com/file/d/1vwhSyAuX0dRPJCpEJ-oO02LE2KfbQZ_u/view?usp=sharing`
+- **BPAi Documentation Report:**: 
+- **BPAi Risk Classification Guide:** `https://drive.google.com/file/d/1UH8zI8Xwbv6ZDUID0aLGSSgHvLeq_2TE/view?usp=drive_link`
+- **BPAi Master Drive:**
 
+## 👥 Contributors
+   BPAi is a web app project developed by 4 data science seniors from Ateneo de Manila University.
+   - Rasheed A. Albel (albelrasheed@gmail.com)
+   - Deanne Gabrielle D. Algenio (deanne.algenio@gmail.com)
+   - Vince Dexter Y. Ang (vince.ang@student.ateneo.edu)
+   - Arabella B. Isles (arabella.isles@student.ateneo.edu)
