@@ -53,13 +53,16 @@ Get started in just a few steps:
     Use the existing .env.example and update its values to fit your specific details.
 
 3. **Install dependencies**
+   ```bash
     pip install -r requirements.txt
     npm install
 
-4. **Run the backend**
+5. **Run the backend**
+   ```bash
     uvicorn backend.app.main:app --reload
 
-5. **Run the frontend**
+7. **Run the frontend**
+   ```bash
     npm run dev
 
 ## 🌐 App Links
@@ -80,3 +83,4 @@ Get started in just a few steps:
    - Deanne Gabrielle D. Algenio (deanne.algenio@gmail.com)
    - Vince Dexter Y. Ang (vince.ang@student.ateneo.edu)
    - Arabella B. Isles (arabella.isles@student.ateneo.edu)
+
