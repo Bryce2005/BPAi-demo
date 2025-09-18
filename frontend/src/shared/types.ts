@@ -43,8 +43,8 @@ export interface LoanApplication {
   loan_tenor_months: number;
 
   // Risk Model
-  risk_category: "Secure" | "Unstable" | "Risky" | "Critical" | "Default";
-  probabilities: number[]; // [Secure, Unstable, Risky, Critical, Default]
+  risk_category: "Pass" | "Especially Mentioned" | "Substandard" | "Doubtful" | "Loss";
+  probabilities: number[]; 
 }
 
 

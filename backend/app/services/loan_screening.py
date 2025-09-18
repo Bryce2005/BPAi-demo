@@ -155,8 +155,8 @@ def generate_shap_waterfall_plot(model, X, instance_index, filename="shap_waterf
 
 
 RISK_CATEGORY_MAP = {
-    0: "Secure", 1: "Unstable", 2: "Risky",
-    3: "Critical", 4: "Default"
+    0: "Pass", 1: "Especially Mentioned", 2: "Substandard",
+    3: "Doubtful", 4: "Loss"
 }
 
 def predict_loan_application(model, application_features):

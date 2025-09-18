@@ -27,8 +27,8 @@ model = genai.GenerativeModel('gemini-1.5-flash')
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 RISK_CATEGORY_MAP = {
-    0: "Secure", 1: "Unstable", 2: "Risky",
-    3: "Critical", 4: "Default"
+    0: "Pass", 1: "Especially Mentioned", 2: "Substandard",
+    3: "Doubtful", 4: "Loss"
 }
 
 def explain_ai(gen_type, df, application_id, lime_explanation, aggregated_lime_scores, X_train, probabilities, lime_image_path=None, 

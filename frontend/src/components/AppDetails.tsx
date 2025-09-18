@@ -48,11 +48,11 @@ const ApplicationDetailsModal = ({ application, isOpen, onClose }: ApplicationDe
 
   const getRiskCategoryColor = (category: string) => {
     switch (category) {
-      case 'Secure': return 'text-green-700 bg-green-100';
-      case 'Unstable': return 'text-yellow-700 bg-yellow-100';
-      case 'Risky': return 'text-orange-700 bg-orange-100';
-      case 'Critical': return 'text-red-700 bg-red-100';
-      case 'Default': return 'text-red-800 bg-red-200';
+      case 'Pass': return 'text-green-700 bg-green-100';
+      case 'Especially Mentioned': return 'text-yellow-700 bg-yellow-100';
+      case 'Substandard': return 'text-orange-700 bg-orange-100';
+      case 'Doubtful': return 'text-red-700 bg-red-100';
+      case 'Loss': return 'text-red-800 bg-red-200';
       default: return 'text-gray-700 bg-gray-100';
     }
   };

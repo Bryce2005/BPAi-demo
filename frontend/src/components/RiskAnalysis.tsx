@@ -198,24 +198,26 @@ const RiskAnalysisPage: React.FC<RiskAnalysisProps> = ({
     }
   };
 
+  
   const getRiskCategoryColor = (category: string) => {
     switch (category) {
-      case 'Secure': return 'text-green-700 bg-green-100 border-green-200';
-      case 'Unstable': return 'text-blue-700 bg-blue-100 border-blue-200';
-      case 'Risky': return 'text-yellow-700 bg-yellow-100 border-yellow-200';
-      case 'Critical': return 'text-purple-700 bg-purple-100 border-purple-200';
-      case 'Default': return 'text-red-800 bg-red-200 border-red-300';
+      case 'Pass': return 'text-green-800 bg-green-300 border-green-200';
+      case 'Especially Mentioned': return 'text-lime-600 bg-lime-200 border-lime-200 ';
+      case 'Substandard': return 'text-yellow-600 bg-yellow-200 border-yellow-200';
+      case 'Doubtful': return 'text-orange-600 bg-orange-200 border-orange-200 ';
+      case 'Loss': return 'text-red-600 bg-red-200 border-red-200';
       default: return 'text-gray-700 bg-gray-100 border-gray-200';
     }
   };
+  
 
   const getRiskIcon = (category: string) => {
     switch (category) {
-      case 'Secure': return <CheckCircle className="w-5 h-5" />;
-      case 'Unstable': return <AlertCircle className="w-5 h-5" />;
-      case 'Risky': return <AlertTriangle className="w-5 h-5" />;
-      case 'Critical': return <AlertTriangle className="w-5 h-5" />;
-      case 'Default': return <AlertTriangle className="w-5 h-5" />;
+      case 'Pass': return <CheckCircle className="w-5 h-5" />;
+      case 'Especially Mentioned': return <AlertCircle className="w-5 h-5" />;
+      case 'Substandard': return <AlertTriangle className="w-5 h-5" />;
+      case 'Doubtful': return <AlertTriangle className="w-5 h-5" />;
+      case 'Loss': return <AlertTriangle className="w-5 h-5" />;
       default: return <Shield className="w-5 h-5" />;
     }
   };

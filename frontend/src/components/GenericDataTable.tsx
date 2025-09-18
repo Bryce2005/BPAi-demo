@@ -92,11 +92,11 @@ const GenericDataTable = <T extends BaseDataItem>({
   // Helper functions
   const getRiskCategoryColor = (category: string) => {
     const colors = {
-      'Secure': 'bg-green-100 text-green-800 border-green-200',
-      'Unstable': 'bg-blue-100 text-blue-800 border-blue-200',
-      'Risky': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'Critical': 'bg-purple-100 text-purple-800 border-purple-200',
-      'Default': 'bg-red-100 text-red-800 border-red-200',
+      'Loss': 'text-red-600 border-red-200 bg-red-100',     // Most red
+      'Doubtful': 'text-orange-600 border-orange-200 bg-orange-100', // Between red and yellow
+      'Substandard': 'text-yellow-600 border-yellow-200 bg-yellow-100', // Middle (yellowish warning)
+      'Especially Mentioned': 'text-lime-600 border-lime-200 bg-lime-100',  // Between yellow and green
+      'Pass': 'text-green-600 border-green-200 bg-green-100 ',  // Most green
     };
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
@@ -172,14 +172,14 @@ const GenericDataTable = <T extends BaseDataItem>({
     switch (column.type) {
       case 'status':
         return (
-          <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getRiskCategoryColor(String(value))}`}>
+          <span className={`px-3 py-1 rounded-full text-l font-bold border-2 ${getRiskCategoryColor(String(value))}`}>
             {String(value)}
           </span>
         );
       case 'score':
         return (
           <div className="flex flex-col">
-            <span className={`text-2xl font-bold ${getScoreColor(Number(value) * 100)}`}>
+            <span className={`text-xl font-bold ${getScoreColor(Number(value) * 100)}`}>
               {(Number(value) * 100).toFixed(0)}%
             </span>
             <span className="text-xs text-gray-500">Confidence: {(Number(value) / 100 * 100).toFixed(2)}</span>

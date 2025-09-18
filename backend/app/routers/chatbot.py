@@ -53,9 +53,9 @@ DASHBOARD DATA:
 {dashboard_json}
 
 RISK SCORING MODEL:
-- 0-30: Secure (Low Risk) - Green status
-- 31-70: Risky (Medium Risk) - Yellow status  
-- 71-100: Critical/Default (High Risk) - Red status
+- Pass (Low Risk) - Green status
+- Especially Mentioned, Substandard, or Doubtful (Medium Risk) - Yellow status  
+- Loss (High Risk) - Red status
 
 KEY CAPABILITIES:
 1. Search applications by ID (e.g., APP-2024-001)

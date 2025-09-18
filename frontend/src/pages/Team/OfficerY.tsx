@@ -130,13 +130,13 @@ const OfficerY: React.FC = () => {
     ],
     searchableFields: ['clientName', 'contactNumber', 'address', 'rationale'],
     statusField: 'status',
-    statusOptions: ['Secure', 'Unstable', 'Risky', 'Critical', 'Default'],
+    statusOptions: ['Pass', 'Especially Mentioned', 'Substandard', 'Doubtful', 'Loss'],
     statusColors: {
-      'Secure': 'bg-green-100 text-green-800 border-green-200',
-      'Unstable': 'bg-red-100 text-red-800 border-red-200',
-      'Risky': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'Critical': 'bg-blue-100 text-blue-800 border-blue-200',
-      'Default': 'bg-purple-100 text-purple-800 border-purple-200',
+      'Pass': 'bg-green-100 text-green-800 border-green-200',
+      'Especially Mentioned': 'bg-red-100 text-red-800 border-red-200',
+      'Substandard': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'Doubtful': 'bg-blue-100 text-blue-800 border-blue-200',
+      'Loss': 'bg-purple-100 text-purple-800 border-purple-200',
     },
     scoreField: 'confidenceScore',
     scoreColorRanges: [
@@ -155,7 +155,7 @@ const OfficerY: React.FC = () => {
       },
       {
         label: 'Approved',
-        value: (data: any[]) => data.filter(app => app.status === 'Secure').length,
+        value: (data: any[]) => data.filter(app => app.status === 'Pass').length,
         description: (data: any[], value: number) => {
           const total = data.length;
           const percentage = total > 0 ? Math.round((Number(value) / total) * 100) : 0;
@@ -168,9 +168,9 @@ const OfficerY: React.FC = () => {
       {
         label: 'Needs Attention',
         value: (data: any[]) => {
-          const unstable = data.filter(app => app.status === 'Unstable').length;
-          const risky = data.filter(app => app.status === 'Risky').length;
-          const critical = data.filter(app => app.status === 'Critical').length;
+          const unstable = data.filter(app => app.status === 'Especially Mentioned').length;
+          const risky = data.filter(app => app.status === 'Substandard').length;
+          const critical = data.filter(app => app.status === 'Doubtful').length;
           return unstable + risky + critical;
         },
         description: () => 'Require review',
@@ -181,7 +181,7 @@ const OfficerY: React.FC = () => {
       {
         label: 'Rejected',
         value: (data: any[]) => {
-          const loss = data.filter(app => app.status === 'Default').length;
+          const loss = data.filter(app => app.status === 'Loss').length;
           return loss;
         },
          description: (data: any[], value: number) => {

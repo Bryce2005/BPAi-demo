@@ -96,8 +96,13 @@ class BatchProcessor(BaseLoanProcessor):
         result_df = result_df.set_index('application_id').loc[app_ids].reset_index()
         
         result_df["risk_category"] = predicted_categories
-        result_df["probabilities"] = probabilities_list
-        
+        result_df["probabilities"] = [prob.tolist() for prob in probabilities_list]    
+
+        # Apply serialization to the entire result
+        for record in result_df.to_dict('records'):
+            for key, value in record.items():
+                record[key] = make_serializable(value)
+                            
         return result_df.to_dict('records')
     
 class DetailedProcessor(BaseLoanProcessor):
@@ -275,8 +280,12 @@ class DetailedProcessor(BaseLoanProcessor):
 def make_serializable(obj):
     if isinstance(obj, np.ndarray):
         return obj.tolist()
-    if isinstance(obj, float) and math.isnan(obj):
+    if isinstance(obj, (np.floating, float)) and math.isnan(obj):
         return None
+    if isinstance(obj, np.integer):
+        return int(obj)
+    if isinstance(obj, np.floating):
+        return float(obj)
     return obj
 
 def categorize(test_csv_path):

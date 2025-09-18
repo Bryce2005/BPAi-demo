@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { X, Mail, Send, Paperclip, User, HandCoins} from 'lucide-react';
 
-const getRiskCategoryColor = (category: string) => {
-  const colors = {
-    'Secure': 'bg-green-100 text-green-800 border-green-200',
-    'Unstable': 'bg-blue-100 text-blue-800 border-blue-200',
-    'Risky': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    'Critical': 'bg-purple-100 text-purple-800 border-purple-200',
-    'Default': 'bg-red-100 text-red-800 border-red-200',
+  const getRiskCategoryColor = (category: string) => {
+    const colors = {
+      'Loss': 'text-red-600 border-red-200 bg-red-200',     // Most red
+      'Doubtful': 'text-orange-600 border-orange-200 bg-orange-200', // Between red and yellow
+      'Substandard': 'text-yellow-600 border-yellow-200 bg-yellow-200', // Middle (yellowish warning)
+      'Especially Mentioned': 'text-lime-600 border-lime-200 bg-lime-200',  // Between yellow and green
+      'Pass': 'text-green-600 border-green-200 bg-green-200 ',  // Most green
+    };
+    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
-  return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200';
-};
 
 const OverviewPage = ({application}: any) => {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
